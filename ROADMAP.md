@@ -1,92 +1,81 @@
-# AgentSafe — Roadmap Draft
+# AgentSafe — Roadmap
 
-**Status:** Proposed, October 5, 2026. No implementation before explicit approval of the document set.  
-**Planning rule:** advance on evidence and exit criteria, not a fixed release date. The scope in PRODUCT.md takes precedence over feature enthusiasm.
+**Status:** Phase 1 implementation completed for local review on October 5, 2026. Later integration/publication remains conditional.
 
-**Second-pass review:** Resolve the [product review recommendations](PRODUCT.md#second-pass-review--october-5-2026) before adopting the launch checklist below. First determine where target users actually publish artifacts. The original blanket-review policy and complete hook lifecycle are not prerequisites for the initial scanner experiment.
+This roadmap uses fictional development fixtures. Product demand and the appropriate publishing channel remain unknown. PRODUCT.md is the current scope; the earlier full Git gate is a conditional route, not a demo prerequisite.
 
-## Phase 1 — Demo and demand validation
+## Phase 1 — Private technical demo
 
-**Question:** does a screenshot/debug-artifact publication gate solve a recurring job better than existing secret hooks and manual review?
+### Entry
 
-### Deliverables after document approval
+No interviews, private screenshots, real credentials, public repository or final branding are required. The existing private repository is sufficient.
 
-- Recruit 8–12 developers who actually publish agent/browser-generated evidence to public GitHub; document workflows, existing tooling and recent near misses without collecting private files.
-- For each candidate, map recent publications to Git pushes, release/API uploads, attachments or CI artifacts. Record whether an installed pre-push hook would actually have run; do not use a general screenshot-leak incident as validation of a Git-only interception point.
-- Create synthetic fixtures: an image with a configured internal URL/email, an authenticated HAR, a benign public screenshot, and a video marked uninspected. Use reserved fictional domains, fake names and nonfunctional credential examples.
-- Build one runnable vertical slice: a local repository, a controlled Git push destination, exact committed artifact reads, local image OCR, header rules, a blocked push, inspection and a reviewed retry.
-- Demonstrate the add-then-delete failure mode: the gate still detects the earlier outgoing artifact. Do not use a final-diff-only prototype as proof of protection.
-- Produce a 30–45 second terminal demo/storyboard and a static synthetic before/review comparison. Label assumptions, fixture data and any mocked visibility API. Never simulate a pass and present it as working software.
-- Compare outcomes with an existing credential gate plus manual image review. State the concrete incremental benefit rather than claiming existing tools miss all images.
-- Run clean-machine installation experiments for Tesseract/Python on macOS and Linux, plus a Windows feasibility check.
+### Build only the experiment
 
-### Exit criteria
+1. Create fictional PNG/JPEG screenshots and UTF-8 `.log`/`.txt` inputs, with labels for expected findings and decisions. Include benign and failure cases, not just dramatic positives.
+2. Check local OCR quality on readable and small-font screenshots; record the actual setup on the developer's reference machine. Reconsider the provisional OCR dependency if setup or quality defeats the small experiment.
+3. Implement explicit-file `scan`, minimal sensitivity configuration and `doctor`, with locations, masked terminal output and clear coverage/errors.
+4. Demonstrate scan → review the original → edit → rescan.
+5. Record hits, misses, unwanted HIGH findings, warnings, runtime and setup steps. Keep a small set of layout/font variants separate from initial rule tuning.
 
-- At least 5 interviewees show a recent artifact-publishing workflow and want to try the gate on that workflow.
-- The runnable demo reliably blocks the selected synthetic cases, explains the exact version/destination, and never prints raw sensitive values.
-- Users can explain its purpose in one sentence after 30 seconds with the README.
-- At least 3 target users complete a trial inspection/review without maintainer coaching; record where the CLI fails.
-- The proposed install path is credible and its native dependency cost is visible.
+### Review gate
 
-### Stop or narrow
+- The documented command runs on a named machine; no claimed universal platform support.
+- Declared supported positive cases are located; designated benign cases do not produce HIGH findings. Warnings are measured separately.
+- Unsupported files, missing OCR, corrupt input and time/resource limits produce explicit coverage failures and exit 2.
+- Default and error output do not expose raw matched values; runtime scanning sends no input or extracted content to the network.
+- Users can understand what to inspect and what the result does not cover.
 
-If interest is only in API keys, refer users to established scanners rather than expanding the catalog. If capture/export review is valued but a push hook is not, pivot to a smaller screenshot review/export command. If cross-repository/API upload enforcement is required, recognize that a repository-local hook cannot deliver it.
+Do not add staged scanning, Git visibility, hooks, persistent approvals, redaction or additional formats to rescue an unclear demo. If basic OCR/rules remain unhelpful, revise or stop within the small scope.
 
-## Phase 2 — v0.1 public launch
+### Evidence limit
 
-**Question:** will target users keep a small local gate enabled during ordinary work?
+Successful synthetic cases establish a technical demonstration. They do not establish real-world accuracy, market demand, prevented incidents or repeat use. Self-testing supplies one person's usability observations only.
 
-### Deliverables
+## Phase 2 — Feedback and candidate v0.1 public launch
 
-- The exact PRODUCT.md v0.1 scope: GitHub.com visibility; robust outgoing artifact-version enumeration; PNG/JPEG OCR and publishing review; debugging text/HAR header scanning; opaque artifact review; hook lifecycle; minimal CLI; exact-content approvals and explicit ignores.
-- A one-week pilot with at least 5 target users, collecting voluntary counts and usability feedback rather than artifacts, OCR text or private repository names.
-- A labeled synthetic evaluation set of at least 100 cases, separated into supported positive/negative cases and difficult/unsupported cases. Publish per-rule counts, precision, recall, OCR misses and intentional review burden.
-- Clean macOS/Linux setup guides and supported runtime versions. Windows is experimental until equivalent installation/hook tests pass. No cross-platform claim based solely on Python.
-- A documented limit/error policy, ordinary-hook coexistence recipe, accurate JSON schema/exit codes, and safe historical remediation instructions.
-- A distinctive cleared distribution name, approved open-source license, dependency/license inventory, project-owned package/release channels and a SECURITY.md disclosure route.
-- Replace all proposed README examples with verified commands and a real synthetic recording. Keep limitations close to the quickstart.
-- CI for this project's tests on supported platforms. This is release verification, not a user-facing CI scanner feature.
+### Feedback before integration investment
 
-### Launch gates
+Use the working demo to seek concrete workflow feedback when people become reachable. Initially about 3–5 participants is a practical learning sample, not a statistical gate or a condition for starting Phase 1. A description of a recent sharing event is sufficient; do not request private files.
 
-| Gate | Proposed threshold |
+Ask what was shared, what was removed, the publication route, existing alternatives and whether the person would use the check on another actual occasion. Separate actual use from praise. No automatic outreach or publication is authorized by this roadmap.
+
+If users cannot be reached or feedback is purely hypothetical, record demand as unknown. Keep the demo private or request authorization to share it explicitly as an experiment; do not treat a public experiment as evidence of a validated product. Avoid expanding integration work while this remains unresolved.
+
+### Choose one release route
+
+| Observed need | Candidate scope |
 | --- | --- |
-| Demand/retention | At least 3 of 5 pilot users keep the gate enabled and use it on another real push without prompting |
-| HIGH findings | At least 95% precision on labeled supported-rule cases; publish numerator/denominator |
-| Supported detection | At least 90% recall on legible declared-rule positives; publish misses separately |
-| Review friction | Record reviews per push, time per review, overrides and disablement; no unbounded growth hidden behind a precision score |
-| Git correctness | Required history/ref/remote scenarios in ARCHITECTURE.md pass; add-then-delete/add-then-redact must stop publication |
-| Honest coverage | No silent pass on a required scanner/range/limit failure; unsupported content and ignores remain visible |
-| Privacy | No artifact/OCR uploads or default raw-value output; observed/tested network behavior matches docs |
-| Performance | Target p95 <15 seconds for 10 fresh 1080p images + 10 small text artifacts on named hardware; <1 second added overhead without candidates, excluding network/Git cost |
-| Setup | Target first protected synthetic push in <5 minutes on clean macOS/Linux with documented prerequisites |
-| Trust | Name/license/distribution ownership verified; README limitations and review default tested with readers |
+| Useful explicit screenshot/log review across sharing channels | Harden the standalone local checker; preserve the manual-check boundary |
+| Repeated relevant Git pushes and a desire for automatic checking | Propose a Git gate addition and seek scope approval; implement the full Git correctness requirements in ARCHITECTURE.md |
+| Interest only in source-code credentials | Refer to established scanners; reassess incremental value |
+| No recurring job or too much review burden | Retain a bounded experiment, simplify or pause expansion |
 
-Thresholds are goals, not achieved claims. A small synthetic corpus is not a general accuracy guarantee. If quality or retention fails, adjust scope/policy and repeat the pilot before publishing a protection claim.
+The default candidate is the standalone checker. A Git route is not a promise until selected and authorized. JSON output, broader configuration or integration commands need a concrete use case, not a launch checklist slot.
 
-### Explicitly do not add for launch
+### Launch readiness
 
-Automatic redaction, QR decoding, video/PDF inspection, required gitleaks integration, ML dashboard/name detection, MCP/IDE/agent plugins, global hooks, enterprise enforcement, cloud scanning, SaaS dashboards and organization management.
+- Select the product name and license; verify distribution ownership and dependency/license compatibility. MIT is still a proposal.
+- Test installation and the README workflow on clean machines for each claimed supported platform. Target macOS/Linux first; label Windows experimental until equivalently tested.
+- Publish declared rule/format coverage, limits, misses and measured timings on named hardware. Do not turn curated fixture metrics into general accuracy claims.
+- Show a real recording of a synthetic run and label the synthetic data. Explain the selected publication boundary in the README first screen.
+- For a Git route only: verify outgoing history, actual destination, unknown visibility, hook coexistence, safe exception scope and error handling before claiming push protection.
+- Obtain explicit authorization for making the repository public and for any package/release publication. Demo approval does not authorize either.
 
-## Phase 3 — Post-launch, selected by evidence
+Do not require unsupported 95%/90% accuracy claims, arbitrary interview totals or a 3-of-5 retention threshold. Report observed counts and qualitative evidence; product value remains a hypothesis until repeated independent use supports it.
 
-**Question:** which addition removes the largest observed limitation without weakening trust or expanding into an enterprise platform?
+## Phase 3 — Post-launch learning
 
-Prioritize maintenance and adoption before format count:
+Prioritize improvements supported by actual repeated use:
 
-1. Fix reported false positives, OCR usability and setup failures. Stabilize Windows if actual users need it. Publish updated quality/latency measurements and keep backward-compatible JSON semantics where practical.
-2. Improve review workflow: better local annotated previews, batch review of individually identified versions, and more useful remediations. Keep exact-content/context approvals and explicit coverage.
-3. Evaluate a local redaction/export path only if users repeatedly need it. Start with an immutable input and a separate output file, solid masks, re-encoding/metadata removal, visual review and rescan. It must not imply earlier Git versions were sanitized or automatically rewrite history.
-4. Add an optional maintained secret-engine adapter if users request a unified report; reuse an engine rather than implement token rules. Reassess Gitleaks/Betterleaks maintenance before backend commitment.
-5. Evaluate local QR decoding or a single additional format using a dedicated corpus. QR presence remains a review signal; PDF layers, animations and video sampling must have explicit incomplete-coverage behavior.
-6. Add another visibility provider or an opt-in agent/CLI integration only when a measured workflow requires it. API/attachment publication and adjacent agent-created repositories need a new interception model, not a marketing extension of the pre-push guarantee.
+1. Reduce unwanted warnings/HIGH decisions and improve setup, locations and failure explanations.
+2. If standalone API keys in screenshots are a demonstrated need, route extracted text to one mature local secret engine and validate masked output. Do not create a provider-rule catalog.
+3. Add one publishing integration only after documenting its real channel and limits. A Git hook does not cover API uploads, attachments, release assets or every agent-created repository.
+4. Consider a separate local redaction/export workflow only if repeatedly requested; verify resulting bytes and state that old Git versions remain unchanged.
+5. Add formats/languages/platforms one at a time with their own labeled cases and installation/resource measurements.
 
-Do not promise all six. Rank requests by affected retained users, expected review burden reduction, maintainability and data-flow implications. Document a new threat model before adding cloud processing or centralized enforcement.
+No enterprise service, cloud inference or universal egress enforcement is committed. If actual use stays sporadic or users repeatedly bypass the workflow, simplify or stop rather than accumulating features.
 
-## Evidence to collect
+## Current next action
 
-No automatic telemetry in v0.1. Ask for opt-in aggregate feedback: setup time, scan duration, number of inspected/uninspected/ignored artifacts, review decisions, false positives, hook disablement and whether a real workflow benefited. Contributors may submit synthetic reproductions. Never ask users to paste private captures, HAR contents, raw credentials or full OCR transcripts into public issues.
-
-## Current review checkpoint
-
-The deliverable at this checkpoint is five English Markdown drafts, not a runnable demo. Implementation, dependencies, fixtures, hooks, branding assets and release publication begin only after explicit approval. Approval of the product scope does not itself authorize external publication or uploading real user artifacts.
+Run the [local demo](README.md), compare the original and manually reviewed fixtures, and assess whether the locations and explanations are understandable. Record feedback before expanding Phase 1. No real materials or recruited users are needed for this review. A working synthetic demo alone does not advance the project to public launch.

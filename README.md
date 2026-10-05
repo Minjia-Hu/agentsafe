@@ -1,95 +1,122 @@
 # AgentSafe
 
+[中文](README.zh-CN.md)
+
 ### Don't accidentally publish what your AI agent saw or generated.
 
-**A local privacy gate for screenshots and debugging artifacts headed to public Git.**
+**Check screenshots and debugging logs locally before you share them.**
 
-Your agent captured a browser window to prove a fix. The screenshot still contains an internal URL and an account email. A broad `git add .` puts it in the next commit.
+This private experimental CLI finds configured sensitive domains and populated authentication fields, then shows image regions or text line numbers without printing the matched values.
 
-AgentSafe is designed to stop that push and show you what needs review—before the artifact becomes public.
-
-```text
-AgentSafe Privacy Gate
-Destination: github.com/example/ui-demo   Visibility: PUBLIC
-
-HIGH    F12  screenshots/dashboard.png
-        Configured internal URL + email address (local OCR)
-HIGH    F13  debug/session.har
-        Authorization + session-cookie values
-REVIEW  F14  demo.mov
-        Video content not inspected
-
-Push stopped. Inspect the exact versions, fix, or explicitly approve.
-```
-
-**Draft concept — not released.** This is a synthetic example of the proposed CLI, not a recording of working software. The name is provisional. No executable, package or installation command is available from this repository yet.
-
-**Design review:** The [second-pass review](PRODUCT.md#second-pass-review--october-5-2026) reconsiders mandatory review of every image and tests whether Git push is the relevant publishing path. The workflow below remains a proposal pending those decisions.
-
-The internal domain and session-cookie name above are explicitly configured as sensitive. A generic email or preference cookie alone is not a HIGH finding.
-
-## Why it exists
-
-Coding agents increasingly produce screenshots, logs and browser debugging captures. Those files can reveal personal information or internal context even when they contain no recognizable API key.
-
-AgentSafe focuses on the **artifact publishing decision**: what committed evidence is about to leave your machine, where it is going, and whether its exact contents have been reviewed. Keep your existing credential scanner; AgentSafe is intended to complement it.
-
-The initial audience is open-source web developers who publish browser/agent-generated evidence to public GitHub. It does not require a specific coding agent.
-
-## Proposed v0.1
-
-- Check the actual GitHub.com push destination; unknown visibility uses public policy.
-- Inspect selected artifact versions across outgoing commits, including versions deleted or replaced later.
-- Use local OCR to locate readable emails and configured internal domains in PNG/JPEG screenshots.
-- Inspect debugging text and HAR authentication/cookie fields with a small rule set.
-- Require exact-version review for selected images and clearly mark unsupported media/documents as uninspected.
-- Offer masked findings, a repository-local pre-push hook, content-bound approvals and explicit ignores.
+Abbreviated output from the included fictional demo:
 
 ```text
-capture / debug -> git add -> git commit -> AgentSafe gate -> git push
-                                               |
-                                      inspect -> fix or review
+HIGH     examples/synthetic/dashboard.png
+  WARN  Configured sensitive domain; value hidden
+        region x=122 y=308 w=456 h=24 (source pixels); uncertain OCR extraction
+  HIGH  Email uses a configured sensitive domain; value hidden
+        region x=171 y=376 w=229 h=24 (source pixels)
+
+HIGH     examples/synthetic/session.log
+  HIGH  Populated Authorization field; value hidden (validity not checked)
+        line 8
+
+Coverage: 2 inspected, 0 uninspected, 0 failed
+Findings: 4 HIGH, 2 WARN | Exit: 1
 ```
 
-## Intended workflow
+**Private technical demo, not a public release.** The working name and public distribution remain unresolved. No real business artifacts were needed: the examples are fictional, and the reviewed copies were prepared separately rather than produced by automatic redaction. Demand and real-world accuracy remain unvalidated.
 
-These commands describe the proposed interface. They cannot be run against this draft repository yet. Distribution naming and installation instructions will be verified before launch; do not assume a package named `agentsafe` belongs to this project.
+## Run the local demo
 
-```text
-agentsafe init
-agentsafe scan --staged
-git commit
-git push
+Requirements: Python 3.11+ and Tesseract with English (`eng`) data. This run was tested on macOS 26.5.1 arm64, Python 3.12.12 and Tesseract 5.5.2. Linux/Windows installation has not been verified.
 
-# After a stopped push:
-agentsafe inspect F12 --open
-agentsafe allow F12 --reason "Reviewed synthetic demo"
-git push
+From this checkout, create an environment with an available Python 3.12 interpreter and install the local project:
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install '.[dev]'
 ```
 
-Approval applies only to the displayed requirements for the exact artifact bytes, path, destination and policy. Changed content requires review again. Inspect all outstanding items before retrying.
+Install the native OCR dependency separately. On macOS with Homebrew:
 
-If the content is sensitive, fix the unpushed commits containing it. Editing the working file or adding a later deletion does not remove an earlier Git version. AgentSafe will explain this; it will not rewrite your history.
+```sh
+brew install tesseract
+```
 
-## Local processing, honest limits
+If Tesseract is on PATH, no extra configuration is needed. For the current Apple Silicon development machine, Homebrew is outside the default PATH; use:
 
-Artifact scanning stays on your machine. A visibility check sends repository destination metadata to GitHub, not artifact contents. Offline mode applies conservative public policy. No AgentSafe account, cloud vision or telemetry is planned.
+```sh
+export AGENTSAFE_TESSERACT=/opt/homebrew/bin/tesseract
+```
 
-OCR may miss small, blurred or unsupported-language text. The tool cannot reliably infer confidential dashboards or customer names, so selected images require a publishing review even without a rule hit. Known videos, PDFs and other opaque candidates require review without content inspection. Automatic redaction and QR decoding are outside v0.1.
+The environment and OCR dependency are already prepared in this workspace. Run:
 
-A local hook covers local Git pushes from repositories where it is installed. It can be bypassed and does not protect API uploads, PR attachments, release/CI assets, LFS payload transfers or newly created repositories without the hook. It does not audit a private repository later made public. Passing a scan is not a privacy certification.
+```sh
+.venv/bin/agentsafe doctor --config examples/synthetic/policy.toml
+.venv/bin/agentsafe scan examples/synthetic/dashboard.png examples/synthetic/session.log --config examples/synthetic/policy.toml
+```
+
+The scan intentionally returns **1**, because the fictional originals contain supported risk signals. Then compare the manually reviewed versions:
+
+```sh
+.venv/bin/agentsafe scan examples/synthetic/dashboard-reviewed.png examples/synthetic/session-reviewed.log --config examples/synthetic/policy.toml
+```
+
+This returns **0**, with one warning for a preference cookie. Open the originals in your local viewer/editor, inspect the indicated region or line, make your own changes and rescan. AgentSafe never edits them.
+
+Use `--` before filenames beginning with a dash. No directory traversal is performed. Do not install an unrelated public package named `agentsafe`; the only installation described here is from this local checkout. Ordinary installation is used because this machine skips hidden editable-install `.pth` files; reinstall the local package after source changes when checking the installed CLI.
+
+## What it checks
+
+- Explicit PNG/JPEG paths and UTF-8 `.log`/`.txt` files.
+- Readable English image text using local OCR, with source-pixel coordinates.
+- Configured sensitive domains, populated Authorization/Proxy-Authorization fields and configured session-cookie names.
+- Generic emails and other populated cookies as warnings; low-confidence OCR matches also warn.
+
+Configuration is read only when `--config` is supplied:
+
+```toml
+sensitive_domains = ["northstar.test"]
+session_cookie_names = ["demo_session"]
+```
+
+The example domain and all authentication values are fictional. Reserved example emails and obvious placeholders are suppressed unless a domain is explicitly configured as sensitive. HIGH indicates structural/configured evidence, not a verified working credential. An image without a finding does not require approval.
+
+## Results and limits
+
+| Exit | Meaning |
+| --- | --- |
+| 0 | All requested inputs inspected; no HIGH findings. Warnings can remain. |
+| 1 | Scan completed with HIGH findings to review. |
+| 2 | Setup/input/inspection failure. Takes precedence over findings. |
+
+Unsupported inputs, corrupt images, invalid encoding, missing OCR and exceeded limits cannot pass silently. `doctor` uses 0 for ready and 2 for prerequisite/configuration problems. Text scans work without Tesseract; image scans do not.
+
+**Known miss:** the included tiny blurred screenshot contains a configured domain, but OCR extracts no text and the scan returns 0 with an explicit limitation. That is a real demonstration of the coverage gap, not a safe-image verdict. See [fixture labels and measured results](examples/synthetic/README.md).
+
+Initial limits: 10 MiB/20 megapixels per image, 5 MiB/100,000 lines per text input, 32,768 characters per line, 200 findings per file, 20 files per invocation and 10 seconds per OCR subprocess. The 60-second invocation budget is cooperative between stages, not a hard sandbox for decoders/filesystem reads. No input is silently truncated. Animated images and EXIF-rotated JPEGs are rejected; transparent pixels are rendered on white. Hidden pixels and metadata are not inspected.
+
+Only declared text patterns are covered. Arbitrary API keys/passwords, confidential-dashboard recognition, names/faces, QR codes, PDF/video/HAR parsing and automatic redaction are outside the demo. A source-code secret scanner does not automatically scan image OCR output.
+
+Runtime scanning makes no network requests and creates no raw input/OCR temporary files. Tesseract runs through stdin/stdout; installation downloads are separate. Reports still contain filenames, which may be sensitive: review output before sharing.
+
+This is a manual local check. It does not inspect Git history, install hooks or intercept any upload or push. Changes after scanning need a new check. Passing is not privacy certification.
+
+## Development and evidence
+
+```sh
+.venv/bin/python -m pytest -q
+.venv/bin/python examples/synthetic/generate.py
+```
+
+The tests cover decisions, masking, coverage failures and real OCR. OCR tests explicitly skip if Tesseract/eng is unavailable; do not report a skipped run as OCR validation. Source tests use `src/`; reinstall with `.venv/bin/python -m pip install .` after editing source to refresh the installed command. The fixture generator draws fictional layouts with Pillow and never captures a screen.
+
+The project is currently at private demo review. Evaluate whether the findings and locations are understandable before adding integrations. Public release, licensing and a Git route are later decisions; MIT remains a proposal, with no license grant established yet.
 
 ## Design documents
 
 - [Product definition and competitive assessment](PRODUCT.md)
-- [Demo, launch and post-launch roadmap](ROADMAP.md)
-- [Architecture, proposed stack and repository structure](ARCHITECTURE.md)
-- [Contributor and coding-agent instructions](AGENTS.md)
-
-The next step is reviewing these drafts. Implementation starts only after explicit approval. MIT is the proposed open-source license; no license grant or package release is established yet.
-
-## Launch visual plan
-
-Replace the illustrative terminal block with a verified 30–45 second synthetic demo: capture → stopped push → exact-version inspection → reviewed retry. Add a side-by-side fictional screenshot and its highlighted review regions immediately below the headline. Keep raw values fictional, show that OCR runs locally, and demonstrate a historical version that survives a later deletion.
-
-The first screen should communicate "your screenshot can leak context" in seconds. Avoid invented badges, unsupported accuracy claims or "first screenshot scanner" messaging; OCR scanning and local redaction tools already exist.
+- [Roadmap](ROADMAP.md)
+- [Architecture and coverage](ARCHITECTURE.md)
+- [Contributor and agent instructions](AGENTS.md)

@@ -1,0 +1,9 @@
+Synthetic public documentation example
+Documentation mentions the Authorization header but supplies no credential.
+Authorization:
+Proxy-Authorization: Bearer <token>
+Cookie: theme=light; locale=en
+Set-Cookie: preference=compact; Path=/; SameSite=Lax
+Contact: support@example.org
+URL: https://example.org/docs/northstar.test
+Local: http://localhost:3000

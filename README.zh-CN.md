@@ -2,100 +2,121 @@
 
 [English 原文](README.md) · 中文译本。
 
-### 别把你的 AI agent 看到或生成的内容意外发布出去。
+### Don't accidentally publish what your AI agent saw or generated.
 
-**为即将发布到公开 Git 仓库的截图和调试产物提供本地隐私检查。**
+**分享截图和调试日志前，先在本地检查。**
 
-你的 agent 为了证明修复有效，截取了一个浏览器窗口。但截图里仍然有内部 URL 和账户邮箱。一次范围过大的 `git add .`，就可能让它进入下一次提交。
+这个私有实验 CLI 查找配置为敏感的域名和带值的认证字段，显示图片区域或文本行号，并隐藏匹配值。
 
-AgentSafe 的设计目标是在产物公开之前阻止这次推送，并告诉你哪些内容需要检查。
-
-以下保留英文 CLI 示例，方便与原文及未来的命令行界面对照：
+附带虚构 demo 的真实运行结果节选：
 
 ```text
-AgentSafe Privacy Gate
-Destination: github.com/example/ui-demo   Visibility: PUBLIC
+HIGH     examples/synthetic/dashboard.png
+  WARN  Configured sensitive domain; value hidden
+        region x=122 y=308 w=456 h=24 (source pixels); uncertain OCR extraction
+  HIGH  Email uses a configured sensitive domain; value hidden
+        region x=171 y=376 w=229 h=24 (source pixels)
 
-HIGH    F12  screenshots/dashboard.png
-        Configured internal URL + email address (local OCR)
-HIGH    F13  debug/session.har
-        Authorization + session-cookie values
-REVIEW  F14  demo.mov
-        Video content not inspected
+HIGH     examples/synthetic/session.log
+  HIGH  Populated Authorization field; value hidden (validity not checked)
+        line 8
 
-Push stopped. Inspect the exact versions, fix, or explicitly approve.
+Coverage: 2 inspected, 0 uninspected, 0 failed
+Findings: 4 HIGH, 2 WARN | Exit: 1
 ```
 
-示例表示：截图命中已配置的内部 URL 和邮箱；HAR 含有 Authorization 和会话 cookie；视频内容没有被检查。推送被停止，需要检查对应版本、修复，或明确批准。
+**私有技术 demo，尚未公开发布。** 名称和公开分发仍待决定。不需要真实业务产物：所有示例都是虚构的，已审阅副本另行准备，并非自动打码产物。需求和真实准确率仍未验证。
 
-**概念草案，尚未发布。** 上面是使用虚构数据展示的拟议 CLI，不是已经运行的软件录像。项目名称仍是暂定名。本仓库尚未提供可执行程序、安装包或安装命令。
+## 运行本地 demo
 
-**设计评审：** [二次评审](PRODUCT.zh-CN.md#second-pass-review)正在重新考虑“每张图片都必须审阅”，并验证 Git push 是否确实是目标用户使用的发布路径。下述流程仍是等待这些决定的提案。
+需要 Python 3.11+、Tesseract 及英语（`eng`）数据。本次在 macOS 26.5.1 arm64、Python 3.12.12、Tesseract 5.5.2 上验证。Linux/Windows 安装尚未验证。
 
-示例中的内部域名和会话 cookie 名称，均已被明确配置为敏感项。普通邮箱或偏好设置 cookie 本身，不足以构成 HIGH 风险。
+在本仓库内，使用已有 Python 3.12 解释器创建环境并安装本地项目：
 
-## 为什么需要它
-
-Coding agent 越来越多地生成截图、日志和浏览器调试记录。即使这些文件没有包含可识别的 API key，也可能暴露个人信息或内部上下文。
-
-AgentSafe 关注的是**产物发布决策**：哪些已经提交的证据即将离开你的机器、会被发到哪里，以及对应的确切内容是否已经经过审阅。你仍应保留现有的凭证扫描工具；AgentSafe 的目标是补充它的能力。
-
-最初的目标用户，是向公开 GitHub 发布浏览器或 agent 生成证据的开源 Web 开发者。它不依赖某一种 Coding Agent。
-
-## 拟议的 v0.1
-
-- 检查实际的 GitHub.com 推送目标；可见性未知时采用公开仓库策略。
-- 检查待推送提交中的选定产物版本，包括后来被删除或替换的版本。
-- 使用本地 OCR，在 PNG/JPEG 截图中定位可读邮箱和已配置的内部域名。
-- 使用少量规则检查调试文本，以及 HAR 中的认证和 cookie 字段。
-- 对选定图片要求确切版本的审阅，并明确标记没有检查内容的媒体或文档。
-- 提供隐藏敏感值的检测结果、仓库本地 pre-push hook、绑定内容的批准记录，以及明确的忽略配置。
-
-```text
-捕获 / 调试 -> git add -> git commit -> AgentSafe 检查 -> git push
-                                            |
-                                      检查 -> 修复或审阅
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install '.[dev]'
 ```
 
-## 预期使用流程
+原生 OCR 依赖单独安装。macOS 使用 Homebrew：
 
-这些命令描述的是拟议接口，目前还不能在这个草案仓库中运行。发布前会核实分发名称与安装说明；不要假定名为 `agentsafe` 的软件包属于本项目。
-
-```text
-agentsafe init
-agentsafe scan --staged
-git commit
-git push
-
-# 推送被停止之后：
-agentsafe inspect F12 --open
-agentsafe allow F12 --reason "Reviewed synthetic demo"
-git push
+```sh
+brew install tesseract
 ```
 
-批准只适用于界面列出的要求，以及对应的确切文件内容、路径、目标和策略。内容变化后，需要重新审阅。重试前应检查所有尚未处理的项目。
+如果 Tesseract 已在 PATH，无需额外配置。当前 Apple Silicon 开发机器的 Homebrew 不在默认 PATH，使用：
 
-如果内容确实敏感，需要修复包含它的、尚未推送的提交。修改工作区文件或在后续提交里删除它，并不会消除较早的 Git 版本。AgentSafe 会解释这一点，但不会自动改写你的历史。
+```sh
+export AGENTSAFE_TESSERACT=/opt/homebrew/bin/tesseract
+```
 
-## 本地处理与明确的限制
+本工作区已准备好环境和 OCR 依赖，可直接运行：
 
-产物扫描在你的机器上完成。可见性查询只向 GitHub 发送仓库目标元数据，不发送产物内容。离线模式采用保守的公开仓库策略。当前计划不需要 AgentSafe 账户，也不使用云端视觉分析或遥测。
+```sh
+.venv/bin/agentsafe doctor --config examples/synthetic/policy.toml
+.venv/bin/agentsafe scan examples/synthetic/dashboard.png examples/synthetic/session.log --config examples/synthetic/policy.toml
+```
 
-OCR 可能漏掉很小、模糊或语言不受支持的文字。工具无法可靠判断保密后台或客户名称，因此初稿提出：即使没有命中规则，也要求审阅选定图片。已识别的视频、PDF 和其他无法检查内部内容的候选产物，需要在未扫描内容的情况下审阅。自动打码和 QR 解码不属于 v0.1。
+扫描会按预期返回 **1**，因为虚构原件包含受支持的风险线索。再对比人工准备的已审阅版本：
 
-本地 hook 只覆盖已安装该 hook 的仓库中的本地 Git push。它可以被绕过，不能保护 API 上传、PR 附件、release/CI 产物、LFS 实际载荷传输，或尚未安装 hook 的新仓库。它不会审计一个后来变为公开的私有仓库。扫描通过不是隐私安全认证。
+```sh
+.venv/bin/agentsafe scan examples/synthetic/dashboard-reviewed.png examples/synthetic/session-reviewed.log --config examples/synthetic/policy.toml
+```
+
+这次返回 **0**，保留一条偏好 cookie 警告。用已有本地查看器/编辑器打开原文件，检查提示区域或行，自行修改并重扫。AgentSafe 不修改原文件。
+
+以短横线开头的文件名放在 `--` 后。不遍历目录。不要安装其他同名公开 `agentsafe` 软件包；这里仅说明从本地仓库安装。本机跳过隐藏的 editable 安装 `.pth` 文件，因此采用普通安装；修改源码后，验证已安装 CLI 前需要重新安装本地包。
+
+## 检查内容
+
+- 明确指定的 PNG/JPEG 路径和 UTF-8 `.log`/`.txt` 文件。
+- 使用本地 OCR 识别可读英文图片文字，提供原始像素坐标。
+- 已配置敏感域名、带值 Authorization/Proxy-Authorization 字段和已配置会话 cookie 名称。
+- 普通邮箱和其他带值 cookie 给出警告；低置信度 OCR 匹配也只警告。
+
+仅在指定 `--config` 时读取配置：
+
+```toml
+sensitive_domains = ["northstar.test"]
+session_cookie_names = ["demo_session"]
+```
+
+示例域名和全部认证值均为虚构。保留示例邮箱和明显占位符会被抑制，除非域名被明确配置为敏感。HIGH 是结构/配置证据，不代表凭证实际有效。无命中的图片不需要批准。
+
+## 结果与限制
+
+| 退出码 | 含义 |
+| --- | --- |
+| 0 | 全部输入已检查，没有 HIGH，仍可能有警告。 |
+| 1 | 检查完成，存在需要审阅的 HIGH。 |
+| 2 | 设置/输入/检查失败，优先于检测结果。 |
+
+不支持输入、图片损坏、编码错误、OCR 缺失和超出限制，不会被悄悄判通过。`doctor` 就绪返回 0，前置条件/配置问题返回 2。文本扫描不要求 Tesseract，图片扫描需要。
+
+**已知漏检：** 附带的小字模糊截图包含已配置域名，但 OCR 未提取出文字，扫描返回 0 并显示限制。这真实展示了覆盖空缺，不是图片安全的判断。参见[样本标签与实测结果](examples/synthetic/README.zh-CN.md)。
+
+初始限制：单图 10 MiB/2000 万像素，单文本 5 MiB/100,000 行，单行 32,768 字符，单文件 200 条发现，单次 20 文件，每个 OCR 子进程 10 秒。60 秒总预算在阶段之间协作检查，不是对解码器/文件读取的硬沙箱。不悄悄截断输入。动画和 EXIF 旋转 JPEG 会被拒绝；透明像素渲染在白底上。隐藏像素和元数据不检查。
+
+只覆盖已声明的文字模式。任意 API key/密码、内部后台识别、名称/人脸、QR、PDF/视频/HAR 解析和自动打码不属于 demo。源码 secret scanner 不会自动扫描图片 OCR 输出。
+
+运行期扫描不联网，不创建原图/OCR 临时文件；Tesseract 通过 stdin/stdout 运行，安装下载另行进行。报告仍包含可能敏感的文件名，分享输出前请审阅。
+
+这是人工触发的本地检查，不检查 Git 历史、不安装 hook、不拦截任何上传或推送。扫描后修改需要重扫。通过不等于隐私认证。
+
+## 开发与证据
+
+```sh
+.venv/bin/python -m pytest -q
+.venv/bin/python examples/synthetic/generate.py
+```
+
+测试覆盖决策、隐藏敏感值、覆盖失败和真实 OCR。缺少 Tesseract/eng 时，OCR 测试会明确跳过，不能把跳过的运行当作 OCR 验证。源码测试使用 `src/`；修改后运行 `.venv/bin/python -m pip install .` 刷新已安装命令。样本生成器用 Pillow 绘制虚构布局，不截取屏幕。
+
+项目目前处于私有 demo review 阶段。先判断检测结果和定位是否易懂，再增加集成。公开发布、许可证和 Git 路线均为后续决策；MIT 仍是建议，尚未确立许可证授权。
 
 ## 设计文档
 
-- [产品定义与竞争评估](PRODUCT.zh-CN.md)
-- [Demo、发布和发布后路线图](ROADMAP.zh-CN.md)
-- [架构、拟议技术栈与仓库结构](ARCHITECTURE.zh-CN.md)
-- [贡献者与 Coding Agent 工作约束](AGENTS.zh-CN.md)
-
-下一步是 review 这些草案。明确批准之后才开始实现。MIT 是拟议的开源许可证；目前尚未确立许可证授权，也尚未发布软件包。
-
-## 发布时的视觉方案
-
-用一段已经验证、使用虚构数据的 30–45 秒 demo 替换说明性的终端代码块：捕获 → 推送被停止 → 检查确切版本 → 审阅后重试。在主标题下方加入虚构截图与标出审阅区域的并排对比。所有原始值都必须是虚构的；展示 OCR 在本地运行，并演示一个在后续删除之后仍然存在的历史版本。
-
-README 首屏应让人几秒内理解“截图也会泄漏上下文”。避免虚构徽章、未经验证的准确率，或“第一个截图扫描工具”之类的表述；OCR 扫描和本地打码工具已经存在。
+- [产品定义与竞品评估](PRODUCT.zh-CN.md)
+- [路线图](ROADMAP.zh-CN.md)
+- [架构与覆盖](ARCHITECTURE.zh-CN.md)
+- [贡献者与 agent 工作约束](AGENTS.zh-CN.md)
