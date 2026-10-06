@@ -1,0 +1,10 @@
+Synthetic development log - not a real session
+Application: Northstar Demo
+Environment: fictional
+Transport: HTTPS
+Request: GET /dashboard
+Request-ID: synthetic-request-001
+Headers:
+Authorization: Bearer demo-only-nonvalid-credential-7q2k
+Cookie: demo_session=demo-only-nonvalid-session-9b4m; theme=light
+Host: console.northstar.test

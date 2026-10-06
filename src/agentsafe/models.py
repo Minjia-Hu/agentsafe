@@ -17,6 +17,7 @@ class Limits:
     total_seconds: float = 60
     files: int = 20
     findings: int = 200
+    preview_bytes: int = 24 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,8 @@ class FileResult:
     findings: list[Finding] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     digest: str | None = None
+    # Only populated after an explicit preview request. Excluded from repr.
+    preview_png: bytes | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass

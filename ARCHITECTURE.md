@@ -49,7 +49,7 @@ Use small internal records:
 
 Policy is defined in PRODUCT.md. Generic emails/cookies and uncertain OCR matches warn. Strong configured-domain or populated auth/session evidence produces HIGH. An image with no finding does not require approval. A low OCR confidence value is not a calibrated security probability.
 
-No persistent finding IDs, manifests, approvals or extraction cache in the demo. Do not store OCR transcripts or raw input copies. The user's original files remain in place; the scanner does not edit them or open external viewers automatically. Minimal configuration is loaded only from an explicit `--config` path; do not silently trust repository-local policy.
+No persistent finding IDs, manifests, approvals or extraction cache in the demo. Normal scans store neither OCR transcripts nor raw input copies and open no viewers. Explicit `--preview` and `demo` may retain the normalized PNG from the same scanned snapshot, render a self-contained page and attempt to open the default browser. No original is edited or reread for preview. `--no-open` suppresses the browser launch. Minimal configuration is loaded only from an explicit `--config` path; do not silently trust repository-local policy.
 
 ## 4. Extraction and resource limits
 
@@ -72,11 +72,19 @@ Placeholder suppression must not suppress intentionally configured fictional sen
 
 Runtime scanning has no network operations: no visibility lookup, telemetry, update check, credential verification or URL fetching. Installation is a separate documented operation. Never execute embedded content or inspect beyond explicitly selected files.
 
-Use subprocess argument arrays and timeouts. Pillow validates and normalizes image pixels in memory; the Tesseract process receives PNG bytes on stdin and returns TSV on stdout. No raw image or OCR temporary file is created by this pipeline. Never forward raw OCR output/stderr to logs. Tesseract may be found on PATH or at the explicit AGENTSAFE_TESSERACT executable path. See its [CLI documentation](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html).
+Use subprocess argument arrays and timeouts. Pillow validates and normalizes image pixels in memory; the Tesseract process receives PNG bytes on stdin and returns TSV on stdout. No raw image or OCR temporary file is created by this pipeline. Never forward raw OCR output/stderr to logs. Tesseract may be found on PATH, in the standard macOS Homebrew locations, or at the explicit AGENTSAFE_TESSERACT executable path. An invalid explicit override fails rather than silently falling back. See its [CLI documentation](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html).
 
 Mask matched values in every normal/error message. Disable Rich markup interpretation for untrusted strings and sanitize terminal control characters. Do not forward decoder/OCR stderr verbatim. Filenames can disclose context even after escaping; keep output local and tell users to review reports before sharing them.
 
 There is no redaction guarantee. Coordinates identify where to inspect; users edit originals with existing tools and rerun the scan. No automatic commit/history changes.
+
+### Explicit preview storage
+
+`preview.py` embeds normalized visible pixels as PNG data URLs with SVG rectangles in a single HTML file. Only fixed packaged CSS/JavaScript executes; the Content Security Policy blocks connections and external resources and permits the fixed script by hash. Untrusted filenames/reasons are escaped. Region bounds are checked against the snapshot dimensions. Raw logs and OCR text are not embedded. Render text findings as compact static rows. Show region controls only for mapped boxes. A completed image extraction with no readable text renders an amber manual-review status and one limitation message before other notes, with a separate group count. This is presentation derived from the scan report; severity, coverage and exit semantics are unchanged.
+
+Store sessions outside Git repositories under the OS temporary directory, with POSIX 700 directories and 600 files. Reject a symlink or unowned storage root. Cleanup occurs on later preview creation for owned, unchanged-layout sessions older than 24 hours, with no background task; preserve sessions with extra files or an unrecognized marker. Document manual removal and the fact the page contains unredacted pixels. Windows ACL behavior remains unverified. Cap normalized image bytes at 24 MiB per page; failure is explicit exit 2.
+
+`demo.py` loads bundled synthetic assets and their policy using package resources, never implicit repository/user config. It produces three real scan reports rather than hard-coded findings. Demo completion and scan privacy decisions have distinct documented exit semantics.
 
 ## 6. Proposed repository structure
 
@@ -92,7 +100,11 @@ agentsafe/
 ├── .gitignore
 ├── pyproject.toml                  # Local demo installation
 ├── src/agentsafe/
-│   ├── cli.py                     # scan and doctor
+│   ├── cli.py                     # scan, doctor and demo
+│   ├── demo.py                    # Bundled case orchestration
+│   ├── preview.py                 # Explicit private HTML/SVG review
+│   ├── ui/                        # Self-contained CSS and JavaScript
+│   ├── demo_assets/               # Packaged fictional inputs and policy
 │   ├── inputs.py                  # Bounded snapshots and classification
 │   ├── extract.py                 # Text and local OCR
 │   ├── rules.py                   # Small evidence rules

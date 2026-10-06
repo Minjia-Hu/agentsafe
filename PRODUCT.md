@@ -131,7 +131,7 @@ If a Git gate is later selected, it must inspect all relevant outgoing versions,
 - Local OCR with image coordinates; direct text processing with line numbers.
 - Configured sensitive-domain matching; possible email detection; populated Authorization/Proxy-Authorization fields; Cookie/Set-Cookie fields with configured sensitive session-cookie names.
 - Small optional TOML configuration for sensitive domains and session-cookie names. Show when none are configured; do not pretend to infer organization-specific sensitivity.
-- One `scan` command, one `doctor` command, masked terminal output and defined exit codes.
+- `scan`, `doctor` and a bundled one-command `demo`; opt-in `scan --preview` image-region review, masked terminal output and defined exit codes.
 - Fictional positive, benign and failure fixtures; a documented manual review/edit/rescan workflow.
 
 ### Policy hypothesis
@@ -158,6 +158,7 @@ Automatic redaction, QR decoding, PDF/video inspection, HAR-specific parsing, ar
 These commands are implemented. Install from the local checkout as described in README.md; no public package is available:
 
 ```text
+agentsafe demo
 agentsafe doctor
 agentsafe scan examples/synthetic/dashboard.png examples/synthetic/session.log --config examples/synthetic/policy.toml
 ```
@@ -179,9 +180,13 @@ Review the indicated locations, edit if needed, and scan again before sharing.
 No upload or Git push was intercepted.
 ```
 
-Do not print raw tokens, matched emails, full source lines or OCR transcripts. File paths may themselves be sensitive; sanitize terminal controls and keep output local. A coordinate identifies evidence, not a redaction guarantee. The user can open the original in an existing local viewer; no custom preview server or image editor is required for the demo.
+Do not print raw tokens, matched emails, full source lines or OCR transcripts. File paths may themselves be sensitive; sanitize terminal controls and keep output local. A coordinate identifies evidence, not a redaction guarantee. Explicit `scan --preview` and `demo` create self-contained local image-region pages, then attempt to open the default browser. The page contains visible image pixels and must be kept private; it is not a redacted export. Text log content stays masked. No preview server or image editor is included. `--no-open` saves without opening; `--lang zh` selects a Chinese page. See README for the temporary-file lifecycle.
+
+Visual status must distinguish completed processing from readable extraction: an image with no extracted text shows “No readable text — review the image manually”, rather than a green CHECKED label. Group summaries list that limitation separately from findings. The warning does not invent a finding or change exit semantics. Log findings use static line/reason rows; only mapped image regions have interactive controls. The local viewer is optional; teaching demo groups are not the everyday file-review flow.
 
 **Exit codes:** 0 = all requested inputs inspected with no HIGH findings; warnings may exist. 1 = completed scan with HIGH findings. 2 = any setup/input/inspection failure, even when other files also have HIGH findings. Print warnings and coverage explicitly; never equate exit 0 with safe publication. These are scan outcomes, not proof a Git push was blocked. `doctor` uses 0 for ready and 2 for missing/invalid prerequisites.
+
+`demo` scans original, prepared reviewed and known-miss fixtures from package resources; no business material is needed. Demo completion uses exit 0 even when expected HIGH findings exist; failures use 2. `scan --preview` preserves scan decisions, with preview-generation failure overriding to 2.
 
 Default output is terminal text. Structured JSON, stable stored finding IDs, `inspect`, `allow`, `init`, `uninstall` and `redact` are not demo commands. Consider only demonstrated needs for a release.
 

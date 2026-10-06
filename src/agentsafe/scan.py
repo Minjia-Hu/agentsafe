@@ -11,7 +11,7 @@ from .models import FileResult, Limits, ScanError, ScanResult
 from .rules import inspect_segments
 
 
-def scan_files(paths: list[str], policy: Policy, *, config_loaded: bool = False, limits: Limits = Limits()) -> ScanResult:
+def scan_files(paths: list[str], policy: Policy, *, config_loaded: bool = False, limits: Limits = Limits(), capture_previews: bool = False) -> ScanResult:
     results = [FileResult(path) for path in paths]
     report = ScanResult(results, config_loaded, len(policy.sensitive_domains), len(policy.session_cookie_names))
     if len(paths) > limits.files:
@@ -19,6 +19,7 @@ def scan_files(paths: list[str], policy: Policy, *, config_loaded: bool = False,
             result.notes.append("Too many inputs (maximum 20); no files were inspected. Split the invocation.")
         return report
     deadline = time.monotonic() + limits.total_seconds
+    captured_bytes = 0
     for result in results:
         if time.monotonic() >= deadline:
             result.notes.append("Invocation time budget exceeded; this input was not inspected.")
@@ -32,10 +33,18 @@ def scan_files(paths: list[str], policy: Policy, *, config_loaded: bool = False,
             image = suffix in {".png", ".jpg", ".jpeg"}
             data = read_snapshot(path, limits.image_bytes if image else limits.text_bytes)
             result.digest = hashlib.sha256(data).hexdigest()
-            segments = image_segments(data, suffix, limits, deadline) if image else text_segments(data)
+            if image:
+                segments, preview_png = image_segments(data, suffix, limits, deadline)
+            else:
+                segments = text_segments(data)
             result.findings = inspect_segments(segments, policy, deadline, limits.findings)
             result.coverage = "inspected"
             if image:
+                if capture_previews:
+                    captured_bytes += len(preview_png)
+                    if captured_bytes > limits.preview_bytes:
+                        raise ScanError("Preview image budget exceeded; rerun without --preview or with fewer images.")
+                    result.preview_png = preview_png
                 result.notes.append("OCR: English, rendered pixels only; small/blurred text may be missed.")
                 if not segments:
                     result.notes.append("No readable text extracted; this does not establish that the image is harmless.")

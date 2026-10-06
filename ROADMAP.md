@@ -18,6 +18,12 @@ No interviews, private screenshots, real credentials, public repository or final
 4. Demonstrate scan → review the original → edit → rescan.
 5. Record hits, misses, unwanted HIGH findings, warnings, runtime and setup steps. Keep a small set of layout/font variants separate from initial rule tuning.
 
+### usability follow-up
+
+The approved next iteration adds bundled `demo` and explicit local image-region preview, with English/Chinese pages, local-file lifecycle and unchanged originals. Review the three page groups with `.venv/bin/agentsafe demo`; confirm whether the marked positions and reasons are understandable before adding integrations. This does not authorize automatic redaction or publication.
+
+The next UI revision implements compact static log rows, translated OCR notes, controls only for existing regions and a manual-review status for no readable text. No new integration scope is implied.
+
 ### Review gate
 
 - The documented command runs on a named machine; no claimed universal platform support.

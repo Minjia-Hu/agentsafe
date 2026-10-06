@@ -27,6 +27,14 @@ Findings: 4 HIGH, 2 WARN | Exit: 1
 
 **私有技术 demo，尚未公开发布。** 名称和公开分发仍待决定。不需要真实业务产物：所有示例都是虚构的，已审阅副本另行准备，并非自动打码产物。需求和真实准确率仍未验证。
 
+本工作区已经安装完成，可先运行这一条命令：
+
+```sh
+.venv/bin/agentsafe demo --lang zh
+```
+
+它会扫描附带虚构样本，并打开包含图片标记、修改后对照和已知漏检的本地页面。
+
 ## 运行本地 demo
 
 需要 Python 3.11+、Tesseract 及英语（`eng`）数据。本次在 macOS 26.5.1 arm64、Python 3.12.12、Tesseract 5.5.2 上验证。Linux/Windows 安装尚未验证。
@@ -44,7 +52,7 @@ python3.12 -m venv .venv
 brew install tesseract
 ```
 
-如果 Tesseract 已在 PATH，无需额外配置。当前 Apple Silicon 开发机器的 Homebrew 不在默认 PATH，使用：
+Tesseract 会从 PATH 及 macOS 标准 Homebrew 路径自动查找；本工作区无需环境变量。需要显式覆盖时使用：
 
 ```sh
 export AGENTSAFE_TESSERACT=/opt/homebrew/bin/tesseract
@@ -66,6 +74,21 @@ export AGENTSAFE_TESSERACT=/opt/homebrew/bin/tesseract
 这次返回 **0**，保留一条偏好 cookie 警告。用已有本地查看器/编辑器打开原文件，检查提示区域或行，自行修改并重扫。AgentSafe 不修改原文件。
 
 以短横线开头的文件名放在 `--` 后。不遍历目录。不要安装其他同名公开 `agentsafe` 软件包；这里仅说明从本地仓库安装。本机跳过隐藏的 editable 安装 `.pth` 文件，因此采用普通安装；修改源码后，验证已安装 CLI 前需要重新安装本地包。
+
+## 可视化审阅
+
+```sh
+.venv/bin/agentsafe demo --lang zh
+.venv/bin/agentsafe scan examples/synthetic/dashboard.png --config examples/synthetic/policy.toml --preview --lang zh
+```
+
+`demo` 所需虚构图片、日志和配置已随本地包安装，离开仓库目录也能运行。它扫描三个分组：修改前、预先准备的修改后对照，以及已知的小字模糊 OCR 漏检。切换分组，点击图片检测条目高亮对应区域，或关闭标记框查看原来的图片。日志仅展示隐藏敏感值的原因与行号。 日志采用紧凑的静态行列表，没有点击高亮动作，也不展示原文。只有存在定位框时才显示标记开关。OCR 未提取出文字的图片使用黄色人工检查状态，分组摘要单独提示；不增加 WARN/HIGH 数量，也不改变扫描退出码。中文页面翻译 OCR 提示，并合并重复的无文字说明。修改后对照不是自动打码生成的。
+
+`--lang zh` 显示中文页面（普通 `scan` 终端输出仍为英文）。`--no-open` 只生成页面，不打开浏览器；默认会尝试用系统默认浏览器打开本地 HTML，打开失败可手动打开打印的路径。OCR 缺失仍明确报错。全部样本检查和页面生成完成时，`demo` 返回 0，即使修改前分组含 HIGH；检查或页面生成不完整返回 2。`scan --preview` 保留普通扫描退出码，预览生成失败返回 2。
+
+**预览包含图片可见内容，并非打码后的导出文件。** 页面使用实际扫描时的归一化图片快照与 SVG 标记框，不重新读取或修改原件，不保存日志原文或 OCR 全文。不需要服务器、外部脚本、字体或网络请求。自己的图片预览应保留为私密文件。
+
+页面存放在 Git 仓库外、操作系统临时目录中的 `agentsafe-previews-<user>/`。POSIX 上目录权限为 700、文件为 600；Windows 权限行为尚未验证。保持原有文件布局的会话超过 24 小时后，在下次生成预览时清理；没有后台自动删除。用完也可自行删除页面或会话目录。每个页面的归一化图片总量限制为 24 MiB。不带 `--preview` 的普通 `scan` 不生成预览，也不打开查看器。
 
 ## 检查内容
 
@@ -99,7 +122,7 @@ session_cookie_names = ["demo_session"]
 
 只覆盖已声明的文字模式。任意 API key/密码、内部后台识别、名称/人脸、QR、PDF/视频/HAR 解析和自动打码不属于 demo。源码 secret scanner 不会自动扫描图片 OCR 输出。
 
-运行期扫描不联网，不创建原图/OCR 临时文件；Tesseract 通过 stdin/stdout 运行，安装下载另行进行。报告仍包含可能敏感的文件名，分享输出前请审阅。
+普通扫描不联网，不创建原图/OCR 临时文件；显式 `--preview` 和 `demo` 会按上文说明生成私密本地 HTML。Tesseract 通过 stdin/stdout 运行，安装下载另行进行。报告仍包含可能敏感的文件名，分享输出前请审阅。
 
 这是人工触发的本地检查，不检查 Git 历史、不安装 hook、不拦截任何上传或推送。扫描后修改需要重扫。通过不等于隐私认证。
 

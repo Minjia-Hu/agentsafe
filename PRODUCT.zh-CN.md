@@ -135,7 +135,7 @@ demo 不检查 Git/index/历史、目标可见性，不安装 hook，不拦截 A
 - 本地 OCR 及图片坐标；直接文本处理及行号。
 - 配置的敏感域名匹配、可能的邮箱、带值的 Authorization/Proxy-Authorization 字段，以及使用已配置敏感会话 cookie 名称的 Cookie/Set-Cookie 字段。
 - 小型可选 TOML 配置，指定敏感域名和会话 cookie 名称。未配置时明确显示，不假装能推断组织的敏感性。
-- 一个 `scan` 命令、一个 `doctor` 命令、隐藏敏感值的终端输出和明确的退出码。
+- `scan`、`doctor` 和附带样本的一键 `demo`；显式 `scan --preview` 图片定位审阅、隐藏敏感值的终端输出和明确退出码。
 - 虚构的阳性、正常和失败样本，以及有说明的人工审阅/修改/重扫流程。
 
 ### 策略假设
@@ -162,6 +162,7 @@ demo 不检查 Git/index/历史、目标可见性，不安装 hook，不拦截 A
 以下命令已实现。按 README 从本地仓库安装；目前没有公开软件包：
 
 ```text
+agentsafe demo --lang zh
 agentsafe doctor
 agentsafe scan examples/synthetic/dashboard.png examples/synthetic/session.log --config examples/synthetic/policy.toml
 ```
@@ -183,9 +184,13 @@ Review the indicated locations, edit if needed, and scan again before sharing.
 No upload or Git push was intercepted.
 ```
 
-不输出原始 token、匹配邮箱、完整原文行或 OCR 全文。路径本身也可能敏感；过滤终端控制字符，并让输出保留在本地。坐标指向证据，不保证打码效果。用户可用已有本地查看器打开原文件；demo 不需要自定义预览服务器或图片编辑器。
+不输出原始 token、匹配邮箱、完整原文行或 OCR 全文。路径本身也可能敏感；过滤终端控制字符，并让输出保留在本地。坐标指向证据，不保证打码效果。显式 `scan --preview` 和 `demo` 生成自包含本地图片定位页面，再尝试打开默认浏览器。页面包含图片可见内容，应保留私密，并非打码导出；日志内容仍隐藏敏感值。不包含预览服务器或图片编辑器。`--no-open` 只保存页面，`--lang zh` 选择中文页面。临时文件生命周期见 README。
+
+视觉状态必须区分处理完成与成功提取文字：没有提取出文字的图片显示“未识别出文字，需人工检查图片”，不用绿色 CHECKED 标签。分组摘要将此限制与检测发现分别列出，不新增发现或改变退出码。日志采用静态行号与问题说明列表；只有可映射的图片区域提供交互。本地查看器是可选辅助，教学 demo 分组不代表日常文件审阅流程。
 
 **退出码：** 0 表示全部输入检查完成且没有 HIGH，仍可能有警告；1 表示检查完成且有 HIGH；2 表示任何设置/输入/检查失败，即使其他文件同时有 HIGH。明确显示警告和覆盖情况，不能把 0 等同于安全发布。这是扫描结果，不是已经拦截 Git push 的证明。`doctor` 就绪时返回 0，缺少前置条件或配置无效时返回 2。
+
+`demo` 从安装包读取修改前、已审阅和已知漏检的虚构样本，不需要业务素材。即使存在预期 HIGH，演示全部完成仍返回 0；失败返回 2。`scan --preview` 保留扫描决策，预览生成失败优先返回 2。
 
 默认输出为终端文本。结构化 JSON、持久 finding ID、`inspect`、`allow`、`init`、`uninstall` 和 `redact` 均不是 demo 命令。正式发布只考虑有证据支持的需要。
 

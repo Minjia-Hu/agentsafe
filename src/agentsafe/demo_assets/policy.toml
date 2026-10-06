@@ -1,0 +1,3 @@
+# Fictional sensitivity settings. No real organization or credentials.
+sensitive_domains = ["northstar.test"]
+session_cookie_names = ["demo_session"]

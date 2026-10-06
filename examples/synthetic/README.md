@@ -27,7 +27,7 @@ All ten were processed as supported inputs. The domain URL in `dashboard.png` wa
 
 **Known miss:** `small-blurred.png` contains a configured domain but produced no readable text. It returned 0 with a no-readable-text limitation. Keep this probe visible: a completed OCR process does not prove the image contains no sensitive data. The held-out layout was evaluated after the first rules were written; it is one synthetic variation, not an independent accuracy benchmark.
 
-The final source suite completed with **59 passed, 0 skipped** on this machine, including six real-OCR fixture cases. Dependency consistency (`pip check`) also passed. These checks are local demo evidence only.
+The initial source suite completed with **59 passed, 0 skipped** on this machine, including six real-OCR fixture cases. The usability follow-up completed with **74 passed, 0 skipped**, including a full bundled-demo real-OCR run from outside the checkout. Dependency consistency (`pip check`) also passed. These checks are local demo evidence only.
 
 ## Reproduce
 
@@ -45,3 +45,17 @@ Regenerate the drawings only when needed with `.venv/bin/python examples/synthet
 The automated suite checks structural decisions, original-file preservation, masked diagnostics, invalid configuration, symlink/pipe rejection, unsupported/corrupt/rotated/animated inputs, byte/pixel/line/finding/time limits, and real OCR. Python socket connections are disabled by tests; this is not an OS-level network audit of the trusted native OCR executable. No packet-level claim is made.
 
 This evidence supports reviewing a small private technical demo. It does not establish general accuracy, market demand, prevention of real incidents, clean-machine installation on other platforms or public-release readiness.
+
+## One-command visual demo
+
+```sh
+.venv/bin/agentsafe demo --no-open
+```
+
+Omit `--no-open` to request opening the default browser; add `--lang zh` for Chinese. The installed command was verified from `/private/tmp` with no Tesseract environment override: originals 4 HIGH/2 WARN (scan exit 1), reviewed 0 HIGH/1 WARN (scan exit 0), known miss 0 HIGH/0 WARN (scan exit 0), demo exit 0. HTML generation, masked text, snapshot preservation, private permissions, conservative cleanup and JavaScript syntax were checked. The app browser blocked `file:` navigation, so agent-controlled browser verification was not completed. No alternative serving workaround was used.
+
+The fixture generator also synchronizes the six bundled demo resources. Tests check equality against these source fixtures; reinstall the local package after regeneration. The preview lifecycle is documented in the main README.
+
+That review exposed excessive log whitespace, click-like log cards, English OCR notes, unnecessary region controls and a reassuring status beside the known OCR miss. These issues are addressed by compact static log rows, translated/deduplicated OCR guidance, controls only when boxes exist and an amber no-readable-text/manual-review state with a separate summary. Scan findings, coverage and exit decisions stay unchanged.
+
+The updated source suite completed with **79 passed, 0 skipped** on the reference machine. Regressions check the manual-review state without invented findings, actual region controls, text masking and error precedence. Review confirmed the compact log rows, Chinese OCR guidance, absent controls when no regions exist, amber no-text state and separate limitation count, with original/reviewed counts unchanged. Responsive behavior and automated browser interaction remain unverified.

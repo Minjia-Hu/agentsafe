@@ -6,6 +6,7 @@ import math
 import os
 import shutil
 import subprocess
+import sys
 import time
 import warnings
 
@@ -15,7 +16,15 @@ from .models import Box, Limits, ScanError, Segment, Word
 
 
 def tesseract_command() -> str:
-    command = shutil.which(os.environ.get("AGENTSAFE_TESSERACT", "tesseract"))
+    override = os.environ.get("AGENTSAFE_TESSERACT")
+    command = shutil.which(override if override is not None else "tesseract")
+    # Respect an explicit override, even if invalid. Only use standard Homebrew
+    # locations when PATH discovery failed and no override was supplied.
+    if not command and override is None and sys.platform == "darwin":
+        for candidate in ("/opt/homebrew/bin/tesseract", "/usr/local/bin/tesseract"):
+            command = shutil.which(candidate)
+            if command:
+                break
     if not command:
         raise ScanError("Tesseract was not found. Install it and add it to PATH, or set AGENTSAFE_TESSERACT.")
     return command
@@ -108,7 +117,7 @@ def parse_tsv(raw: bytes) -> list[Segment]:
         raise ScanError("OCR returned malformed output; inspection failed, content hidden.") from None
 
 
-def image_segments(data: bytes, suffix: str, limits: Limits, deadline: float) -> list[Segment]:
+def image_segments(data: bytes, suffix: str, limits: Limits, deadline: float) -> tuple[list[Segment], bytes]:
     encoded = prepare_image(data, suffix, limits)
     remaining = min(limits.ocr_seconds, deadline - time.monotonic())
     if remaining <= 0:
@@ -124,4 +133,4 @@ def image_segments(data: bytes, suffix: str, limits: Limits, deadline: float) ->
         raise ScanError("OCR could not start; run agentsafe doctor. Diagnostics hidden.") from None
     if completed.returncode:
         raise ScanError("OCR failed; check Tesseract and eng language data. Diagnostics hidden.")
-    return parse_tsv(completed.stdout)
+    return parse_tsv(completed.stdout), encoded

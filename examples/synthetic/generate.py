@@ -54,6 +54,11 @@ def main() -> None:
     ImageDraw.Draw(small).text((32, 70), "https://console.northstar.test/dashboard", font=ImageFont.load_default(size=9), fill="#777777")
     small.filter(ImageFilter.GaussianBlur(1.2)).save(ROOT / "small-blurred.png")
     Image.new("RGB", (320, 180), "white").save(ROOT / "blank.png")
+    # Keep the installed one-command demo aligned with the reviewed source cases.
+    bundle = ROOT.parents[1] / "src" / "agentsafe" / "demo_assets"
+    bundle.mkdir(parents=True, exist_ok=True)
+    for name in ("dashboard.png", "dashboard-reviewed.png", "session.log", "session-reviewed.log", "small-blurred.png", "policy.toml"):
+        (bundle / name).write_bytes((ROOT / name).read_bytes())
 
 
 if __name__ == "__main__":

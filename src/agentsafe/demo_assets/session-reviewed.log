@@ -1,0 +1,5 @@
+Synthetic reviewed copy - manually prepared for the demo
+Request: GET /dashboard
+Authorization: [REDACTED]
+Cookie: demo_session=[REDACTED]; theme=light
+Host: example.org
