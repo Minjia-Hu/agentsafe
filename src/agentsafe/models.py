@@ -1,4 +1,4 @@
-"""Transient input/evidence records. Reports never contain extracted values."""
+"""Transient evidence and opt-in masked context; no raw matched values."""
 
 from dataclasses import dataclass, field
 from typing import Literal
@@ -51,6 +51,15 @@ class Finding:
     line: int | None = None
     box: Box | None = None
     uncertain: bool = False
+    # Source character offsets for private text previews; never matched values.
+    mask_span: tuple[int, int] | None = field(default=None, repr=False)
+
+
+@dataclass(frozen=True)
+class TextPreviewLine:
+    line: int
+    text: str = field(repr=False)
+    excerpted: bool = False
 
 
 @dataclass
@@ -62,6 +71,8 @@ class FileResult:
     digest: str | None = None
     # Only populated after an explicit preview request. Excluded from repr.
     preview_png: bytes | None = field(default=None, repr=False, compare=False)
+    # Only masked excerpts of finding lines, never a raw log or OCR transcript.
+    preview_lines: tuple[TextPreviewLine, ...] = field(default=(), repr=False, compare=False)
 
 
 @dataclass
@@ -70,6 +81,7 @@ class ScanResult:
     config_loaded: bool = False
     domain_count: int = 0
     cookie_count: int = 0
+    term_count: int = 0
 
     @property
     def exit_code(self) -> int:

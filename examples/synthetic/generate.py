@@ -54,10 +54,24 @@ def main() -> None:
     ImageDraw.Draw(small).text((32, 70), "https://console.northstar.test/dashboard", font=ImageFont.load_default(size=9), fill="#777777")
     small.filter(ImageFilter.GaussianBlur(1.2)).save(ROOT / "small-blurred.png")
     Image.new("RGB", (320, 180), "white").save(ROOT / "blank.png")
+    screenshot("Fictional project summary", [
+        "Project: Project Cedar",
+        "Customer: Acme Training",
+        "Owner: fictional demo team",
+        "No real business data or credentials",
+    ]).save(ROOT / "business-context.png")
+    (ROOT / "business-context.log").write_text(
+        "SYNTHETIC DEMO / NO REAL DATA\n"
+        "[INFO] Project: Project Cedar\n"
+        "[INFO] Customer: Acme Training\n"
+        "[INFO] 客户：华星演示客户\n"
+        "[INFO] Public example: https://example.org/demo\n", encoding="utf-8")
+    (ROOT / "terms-policy.toml").write_text(
+        'sensitive_terms = ["Project Cedar", "Acme Training", "华星演示客户"]\n', encoding="utf-8")
     # Keep the installed one-command demo aligned with the reviewed source cases.
     bundle = ROOT.parents[1] / "src" / "agentsafe" / "demo_assets"
     bundle.mkdir(parents=True, exist_ok=True)
-    for name in ("dashboard.png", "dashboard-reviewed.png", "session.log", "session-reviewed.log", "small-blurred.png", "policy.toml"):
+    for name in ("dashboard.png", "dashboard-reviewed.png", "session.log", "session-reviewed.log", "small-blurred.png", "policy.toml", "business-context.png", "business-context.log"):
         (bundle / name).write_bytes((ROOT / name).read_bytes())
 
 

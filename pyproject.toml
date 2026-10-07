@@ -24,7 +24,7 @@ agentsafe = "agentsafe.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-agentsafe = ["demo_assets/*", "ui/*.css", "ui/*.js"]
+agentsafe = ["demo_assets/*", "ui/*.css", "ui/*.js", "ui/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

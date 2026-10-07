@@ -1,10 +1,34 @@
 # AgentSafe — Product Definition
 
-**Status:** Private synthetic-data demo implemented on October 5, 2026. Public launch and Git integration are not authorized.
+**Status:** Private scanner/static demo implemented October 5, 2026; GUI implemented October 6, 2026; configured sensitive terms and masked log preview added October 7, 2026. Public launch and Git integration are not authorized.
 **Research date:** October 5, 2026; retained research below has not been re-evaluated in this revision.
 **Working name:** AgentSafe; naming clearance is unresolved.
 
 <a id="second-pass-review--october-5-2026"></a>
+## Current product experience — October 6, 2026
+
+The local browser app is the primary interactive entry: select screenshots/logs, optionally enter sensitive words/phrases, internal domains and session-cookie names, start a scan, review image regions/masked text findings, edit originals with existing tools, reselect changed files and scan again. Bundled fictional cases let a new user try it without private material.
+
+This adds an operating interface to the previous static result viewer. It does not broaden detection formats, add automatic redaction or intercept publishing. The existing Python/OCR/rule core processes explicitly selected snapshots. Browser-to-process communication uses an authenticated loopback-only server; no external artifact transfer is involved.
+
+The immediate milestone is a complete workflow for someone unfamiliar with terminals in the prepared workspace. The Mac development launcher is double-clickable but still depends on the checkout's runtime. A self-contained installer, validated OCR distribution and clean-machine usability remain launch work. Demand and real-world accuracy remain hypotheses.
+
+## Configured business context — October 7, 2026
+
+Optional configuration includes optional `sensitive_terms` in the shared GUI/CLI: customer names, internal project names or phrases the user explicitly wants kept private. No domain configuration is needed for this rule. General email/authentication/cookie checks still run with empty context fields.
+
+Match literal text within one extracted line, case-insensitively, with flexible spacing between phrase words and ASCII word edges for English names. Trim/collapse ordinary spaces and deduplicate case-insensitively; accept at most 100 terms, 2–128 characters each, no controls. Spaces/commas belong to a phrase; the GUI uses one phrase per line. No regex, fuzzy spelling, multiline joins, automatic confidential-name discovery or business-semantic classification. Chinese phrases work in UTF-8 logs/text; image OCR remains English. Reliable matches are HIGH; uncertain OCR matches WARN. Explanations hide matched text while image regions or text line numbers locate it.
+
+A fourth GUI sample, **Customer / project names**, checks fictional Project Cedar / Acme Training in an English screenshot and a log with a Chinese fictional customer name. It runs the same scanner, not hard-coded findings. Static CLI `demo` retains its original three groups.
+
+Manual region redaction/export and independent installation are proposed later milestones for the GUI workflow; this iteration implements neither. Unknown business content can still pass all supported rules. Do not promise a complete privacy firewall or infer real-world accuracy from these synthetic cases.
+
+## Masked log review — October 7, 2026
+
+The GUI and explicit CLI previews now show only lines containing findings, with original line numbers, field names and bounded context. Authentication/cookie values and detected phrases/domains/emails become `[HIDDEN]` (Chinese UI: `[隐藏]`). Click a finding to highlight and focus its line; multiple findings on the same line share that line.
+
+Unrelated lines and long gaps are omitted. No findings means no log excerpt, not permission to publish. Excerpts may retain sensitive content outside the declared rules and must stay private. This is a read-only review aid: no raw-log reveal, automatic sanitized export or change to the original. Normal terminal scans still output reasons/locations only; severity and exit meanings are unchanged.
+
 ## Current proposal: a synthetic-data experiment
 
 None is a prerequisite for a bounded technical demo.
@@ -110,7 +134,7 @@ The underlying threat is accidental external publication of sensitive developmen
 
 The proposed demo covers a **manual check of explicit local files**:
 
-1. The user supplies supported file paths before sharing.
+1. The user selects supported files in the GUI or supplies explicit CLI paths before sharing.
 2. The scanner reads a bounded snapshot of each file locally.
 3. It reports evidence, location, extraction uncertainty and coverage.
 4. The user reviews or edits the original and reruns the check before sharing.
@@ -119,7 +143,7 @@ There is no enforcement at the upload boundary. Changes after scanning invalidat
 
 Trust the local user, configuration and installed dependencies for this accidental-leak model. Treat all file contents as untrusted parser data. Do not execute embedded commands, visit detected URLs or infer AI authorship. Missing tools, unsupported inputs and failed inspections must not become clean results.
 
-The demo excludes Git/index/history inspection, destination visibility, hooks, API/attachment/CI upload interception, credential verification, arbitrary secret detection, customer-name or dashboard classification, hidden metadata and adversarial bypass. OCR can miss tiny, blurred or unsupported-language text. A clean scan means no supported rule matched the inspected input, not that the artifact is safe.
+The demo excludes Git/index/history inspection, destination visibility, hooks, API/attachment/CI upload interception, credential verification, arbitrary secret detection, automatic customer-name or dashboard classification, hidden metadata and adversarial bypass. OCR can miss tiny, blurred or unsupported-language text. A clean scan means no supported rule matched the inspected input, not that the artifact is safe.
 
 If a Git gate is later selected, it must inspect all relevant outgoing versions, including files deleted or redacted in later commits, and the actual destination. A worktree scan cannot make that promise. Detailed conditional requirements are in ARCHITECTURE.md.
 
@@ -127,10 +151,12 @@ If a Git gate is later selected, it must inspect all relevant outgoing versions,
 
 ### Included in the private demo
 
+- Local GUI with explicit file selection, session sensitivity settings, progress, shared review rendering, fictional examples and clear/end-session controls; a Mac checkout-dependent launcher. The following CLI scope still applies to the shared core.
+
 - Explicit paths to PNG/JPEG and UTF-8 `.log`/`.txt` files; no automatic directory crawling or provenance detection.
 - Local OCR with image coordinates; direct text processing with line numbers.
-- Configured sensitive-domain matching; possible email detection; populated Authorization/Proxy-Authorization fields; Cookie/Set-Cookie fields with configured sensitive session-cookie names.
-- Small optional TOML configuration for sensitive domains and session-cookie names. Show when none are configured; do not pretend to infer organization-specific sensitivity.
+- Configured sensitive-domain and literal word/phrase matching; possible email detection; populated Authorization/Proxy-Authorization fields; Cookie/Set-Cookie fields with configured sensitive session-cookie names.
+- Small optional TOML configuration for sensitive domains, words/phrases and session-cookie names. Show when none are configured; do not pretend to infer organization-specific sensitivity.
 - `scan`, `doctor` and a bundled one-command `demo`; opt-in `scan --preview` image-region review, masked terminal output and defined exit codes.
 - Fictional positive, benign and failure fixtures; a documented manual review/edit/rescan workflow.
 
@@ -138,7 +164,7 @@ If a Git gate is later selected, it must inspect all relevant outgoing versions,
 
 | Observation | Proposed behavior |
 | --- | --- |
-| Configured sensitive domain with reliable extraction | HIGH finding; exit 1 unless a scan error takes precedence |
+| Configured sensitive domain or literal phrase with reliable extraction | HIGH finding; exit 1 unless a scan error takes precedence |
 | Populated non-placeholder Authorization field or configured session cookie | HIGH structural/configured finding; does not prove the value is a valid credential |
 | Generic email, unconfigured populated cookie or uncertain OCR match | WARN with location; no automatic HIGH escalation |
 | Supported image inspected without a rule match | No detected finding; no mandatory image approval |
@@ -180,9 +206,9 @@ Review the indicated locations, edit if needed, and scan again before sharing.
 No upload or Git push was intercepted.
 ```
 
-Do not print raw tokens, matched emails, full source lines or OCR transcripts. File paths may themselves be sensitive; sanitize terminal controls and keep output local. A coordinate identifies evidence, not a redaction guarantee. Explicit `scan --preview` and `demo` create self-contained local image-region pages, then attempt to open the default browser. The page contains visible image pixels and must be kept private; it is not a redacted export. Text log content stays masked. No preview server or image editor is included. `--no-open` saves without opening; `--lang zh` selects a Chinese page. See README for the temporary-file lifecycle.
+Do not print raw tokens, matched emails, full source lines or OCR transcripts. File paths may themselves be sensitive; sanitize terminal controls and keep output local. A coordinate identifies evidence, not a redaction guarantee. Explicit `scan --preview` and `demo` create self-contained local image-region and masked-log pages, then attempt to open the default browser. The page contains visible image pixels and must be kept private; it is not a redacted export. Text log content stays masked. These static commands start no server or image editor; the separate GUI uses the authenticated loopback session above. `--no-open` saves without opening; `--lang zh` selects a Chinese page. See README for the temporary-file lifecycle.
 
-Visual status must distinguish completed processing from readable extraction: an image with no extracted text shows “No readable text — review the image manually”, rather than a green CHECKED label. Group summaries list that limitation separately from findings. The warning does not invent a finding or change exit semantics. Log findings use static line/reason rows; only mapped image regions have interactive controls. The local viewer is optional; teaching demo groups are not the everyday file-review flow.
+Visual status must distinguish completed processing from readable extraction: an image with no extracted text shows “No readable text — review the image manually”, rather than a green CHECKED label. Group summaries list that limitation separately from findings. The warning does not invent a finding or change exit semantics. Log findings can locate their masked excerpt line; reports without excerpts fall back to static locations. Image controls require mapped regions. The local viewer is optional; teaching demo groups are not the everyday file-review flow.
 
 **Exit codes:** 0 = all requested inputs inspected with no HIGH findings; warnings may exist. 1 = completed scan with HIGH findings. 2 = any setup/input/inspection failure, even when other files also have HIGH findings. Print warnings and coverage explicitly; never equate exit 0 with safe publication. These are scan outcomes, not proof a Git push was blocked. `doctor` uses 0 for ready and 2 for missing/invalid prerequisites.
 

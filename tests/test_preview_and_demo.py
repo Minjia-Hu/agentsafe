@@ -222,14 +222,14 @@ def test_overlay_control_only_exists_when_there_are_regions():
     assert "No supported rule matched" in html
 
 
-def test_text_review_has_no_click_targets_or_raw_log_content(tmp_path):
+def test_text_report_without_preview_has_no_click_targets_or_raw_log_content(tmp_path):
     log = tmp_path / "session.log"
     log.write_text("Authorization: Bearer synthetic-canary-not-for-preview\nCookie: theme=light\n")
     report = scan_files([str(log)], Policy())
     html = render_page([ReviewGroup("Log", "", report)], lang="zh")
     assert "synthetic-canary-not-for-preview" not in html
     assert "第 1 行" in html and "第 2 行" in html
-    assert "文本问题按行号查看原件" in html
+    assert "请按所示行号检查原件" in html
     assert ' data-target=' not in html and '<button class="finding' not in html
     assert "text-placeholder" not in html
     assert report.exit_code == 1

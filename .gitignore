@@ -18,3 +18,6 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Locally compiled Mac development launcher; source and app metadata are tracked
+AgentSafe.app/Contents/MacOS/AgentSafe

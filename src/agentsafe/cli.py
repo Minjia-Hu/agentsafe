@@ -24,7 +24,7 @@ class Language(str, Enum):
 
 def show_preview(groups: list[ReviewGroup], console: Console, lang: str, no_open: bool, *, synthetic: bool = False) -> None:
     path = save_preview(groups, lang=lang, synthetic=synthetic)
-    console.print(tr(lang, "Local preview (visible image content, not redacted):", "本地预览（含图片可见内容，未打码）："), markup=False)
+    console.print(tr(lang, "Private local preview (unredacted images / masked log excerpts; originals unchanged):", "私密本地预览（图片未打码／日志片段脱敏，原件未修改）："), markup=False)
     console.print(safe_path(str(path)), markup=False)
     if not no_open:
         try:
@@ -41,7 +41,7 @@ app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, help="Ch
 def scan(
     paths: Annotated[list[str], typer.Argument(help="PNG/JPEG or UTF-8 .log/.txt paths; no directory recursion.")],
     config: Annotated[str | None, typer.Option("--config", help="Explicit TOML sensitivity configuration.")] = None,
-    preview: Annotated[bool, typer.Option("--preview", help="Save and open a private local page containing visible image pixels and finding regions; no redaction.")] = False,
+    preview: Annotated[bool, typer.Option("--preview", help="Save and open a private page with unredacted image regions and masked log excerpts; originals unchanged.")] = False,
     no_open: Annotated[bool, typer.Option("--no-open", help="With --preview, save the page without opening a browser.")] = False,
     lang: Annotated[Language, typer.Option("--lang", help="Preview language; terminal scan output remains English.")] = Language.en,
 ) -> None:
@@ -92,6 +92,22 @@ def demo(
 
 
 @app.command()
+def gui(
+    lang: Annotated[Language, typer.Option("--lang", help="Local GUI language.")] = Language.en,
+) -> None:
+    """Open a local browser GUI for file selection, scanning and review."""
+    from .gui import run_gui
+
+    console = Console(highlight=False)
+    console.print(tr(lang.value, "Opening AgentSafe on this device. Use End session in the page to stop, or Ctrl+C here.", "正在本机打开 AgentSafe。在页面点击「结束使用」关闭，或在这里按 Ctrl+C。"), markup=False)
+    try:
+        run_gui(lang=lang.value)
+    except (OSError, ScanError, webbrowser.Error):
+        console.print(tr(lang.value, "Could not start the local GUI. No files were scanned.", "本地界面启动失败，未扫描任何文件。"), markup=False)
+        raise typer.Exit(2)
+
+
+@app.command()
 def doctor(
     config: Annotated[str | None, typer.Option("--config", help="Optionally validate a sensitivity configuration.")] = None,
 ) -> None:
@@ -107,7 +123,7 @@ def doctor(
         errors.append(str(error))
     try:
         policy = load_policy(Path(config) if config else None)
-        console.print(f"Policy: {len(policy.sensitive_domains)} sensitive domains, {len(policy.session_cookie_names)} session cookie names", markup=False)
+        console.print(f"Policy: {len(policy.sensitive_domains)} sensitive domains, {len(policy.session_cookie_names)} session cookie names, {len(policy.sensitive_terms)} sensitive terms", markup=False)
     except ScanError as error:
         errors.append(str(error))
     for error in errors:

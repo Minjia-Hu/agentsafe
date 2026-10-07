@@ -1,6 +1,6 @@
 # AgentSafe — Roadmap
 
-**Status:** Phase 1 implementation completed for local review on October 5, 2026. Later integration/publication remains conditional.
+**Status:** Private scanner/static viewer complete; GUI workflow implemented October 6, 2026 for local review. Configured business terms and masked log preview added October 7, 2026. Integration/publication remains conditional.
 
 This roadmap uses fictional development fixtures. Product demand and the appropriate publishing channel remain unknown. PRODUCT.md is the current scope; the earlier full Git gate is a conditional route, not a demo prerequisite.
 
@@ -24,7 +24,25 @@ The approved next iteration adds bundled `demo` and explicit local image-region 
 
 The next UI revision implements compact static log rows, translated OCR notes, controls only for existing regions and a manual-review status for no readable text. No new integration scope is implied.
 
-### Review gate
+### GUI milestone — October 6, 2026
+
+Implemented: file selection/drop and removal, session domains/cookie names, local asynchronous scanning, image regions/static masked log rows, supported-rule/no-text/error states, sample buttons, re-selection/rescan, clear/end session and a Mac development launcher. No new detector formats or publishing integration.
+
+Acceptance: a new user in the prepared workspace can double-click the launcher, try a fictional sample, select files, enter context, understand findings/limitations, then reselect a reviewed copy and scan again. Failures/local authentication are tested and the main file-picker scan/rescan flow has been exercised in the browser; detailed evidence and remaining UI gaps are in README. The native launcher uses a prepared development runtime snapshot and existing Python/OCR, so this does not fulfill clean-machine distribution yet. Broader usability review remains pending.
+
+Before v0.1 launch, choose/package the runtime and OCR, test first-run setup on clean machines and confirm a nontechnical user can complete the workflow without terminal setup. Keep the existing scanner rather than introducing a second detection engine for GUI use.
+
+### context iteration — October 7, 2026
+
+Implemented in the shared GUI/CLI core, with clearer automatic-versus-optional checks, masked phrase locations, strict configuration/finding limits and a fourth fictional GUI business sample. Acceptance: try the sample without domains; select the same files with supplied terms, inspect image boxes/log lines, change the terms and rescan. Chinese text is demonstrated only in logs; no image OCR language expansion. Validation is recorded in README, broader usability review pending.
+
+Next sequence: complete this context review, then prioritize independent installation and a designed manual image-region redaction / Save a copy / recheck workflow for a candidate v0.1. That export workflow is a proposed milestone, unimplemented in this batch; preserve originals and validate actual output bytes before promising redaction. Broad semantic detection, additional formats and Git automation remain later choices. Do not postpone all useful core improvements until post-launch, and do not turn this iteration into an unlimited scanner.
+
+### masked log preview — October 7, 2026
+
+Implemented: bounded excerpts of finding lines, original numbers/field names, hidden detector/auth/cookie values and clickable line highlight/focus in the shared GUI/static renderer. Preserve originals, never expose raw logs or offer a sanitized export. Acceptance: try Before review, click its auth and cookie findings, verify corresponding masked lines; compare After review and the business-term sample. Privacy/location/coverage tests and browser evidence are recorded in README. This improves review, not detection scope or launch readiness.
+
+### Scanner review gate
 
 - The documented command runs on a named machine; no claimed universal platform support.
 - Declared supported positive cases are located; designated benign cases do not produce HIGH findings. Warnings are measured separately.
@@ -77,11 +95,11 @@ Prioritize improvements supported by actual repeated use:
 1. Reduce unwanted warnings/HIGH decisions and improve setup, locations and failure explanations.
 2. If standalone API keys in screenshots are a demonstrated need, route extracted text to one mature local secret engine and validate masked output. Do not create a provider-rule catalog.
 3. Add one publishing integration only after documenting its real channel and limits. A Git hook does not cover API uploads, attachments, release assets or every agent-created repository.
-4. Consider a separate local redaction/export workflow only if repeatedly requested; verify resulting bytes and state that old Git versions remain unchanged.
+4. Evaluate the proposed manual export workflow before launch; after launch refine it from actual use. Verify resulting bytes and state that old Git versions remain unchanged. Automatic semantic redaction is not implied.
 5. Add formats/languages/platforms one at a time with their own labeled cases and installation/resource measurements.
 
 No enterprise service, cloud inference or universal egress enforcement is committed. If actual use stays sporadic or users repeatedly bypass the workflow, simplify or stop rather than accumulating features.
 
 ## Current next action
 
-Run the [local demo](README.md), compare the original and manually reviewed fixtures, and assess whether the locations and explanations are understandable. Record feedback before expanding Phase 1. No real materials or recruited users are needed for this review. A working synthetic demo alone does not advance the project to public launch.
+Try **Customer / project names** in the [interactive local GUI](README.md) using the Mac development launcher. Then select the bundled business files, enter the sample phrases and compare with empty settings. Complete sample → select/context → scan → review → reselect edited file → rescan, and record where first-time use is confusing. Then address usability and clean-machine packaging, before broader integration. No real materials or recruited users are required for this review. Synthetic success alone does not advance the project to public launch.

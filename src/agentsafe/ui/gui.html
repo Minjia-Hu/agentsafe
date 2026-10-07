@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentSafe · Local check</title>
+  <link rel="stylesheet" href="/preview.css">
+  <link rel="stylesheet" href="/gui.css">
+  <script defer src="/preview.js"></script>
+  <script defer src="/gui.js"></script>
+</head>
+<body>
+<div class="shell app-shell">
+  <header class="masthead">
+    <div class="brand"><span class="brand-mark">A</span>AgentSafe<span class="edition">LOCAL CHECK / 02</span></div>
+    <div class="header-actions"><span class="local"><i></i><span data-copy="local">On this device</span></span><button class="subtle" id="stop" data-copy="stop">End session</button></div>
+  </header>
+  <main>
+    <div class="app-intro"><div><span class="eyebrow" data-copy="eyebrow">A MOMENT BEFORE YOU SHARE</span><h1 data-copy="title">A little context can travel too far.</h1><p data-copy="intro">Check screenshots and debugging logs locally. Locate what needs review, then decide what to share.</p></div><span class="intro-index">01—03</span></div>
+    <div id="connection-error" class="notice error-notice" role="alert" hidden></div>
+    <div class="workbench">
+      <section class="selection-panel" aria-labelledby="select-heading">
+        <div class="step-heading"><span class="step-number">01</span><h2 id="select-heading" data-copy="selectTitle">Choose your files</h2><span class="step-caption" data-copy="formats">PNG · JPEG · LOG · TXT</span></div>
+        <input id="file-picker" type="file" accept=".png,.jpg,.jpeg,.log,.txt" multiple hidden>
+        <div class="drop-zone" id="drop-zone">
+          <div class="paper-icon" aria-hidden="true"><span>↗</span></div>
+          <strong data-copy="dropTitle">Drop files here</strong>
+          <span data-copy="dropHint">or choose screenshots and logs from your device</span>
+          <button class="button secondary" id="choose" data-copy="choose">Choose files</button>
+          <small data-copy="limits">Up to 20 files · 24 MiB total · no folders</small>
+        </div>
+        <div id="selection-summary" class="selection-summary" hidden></div>
+        <ul id="file-list" class="selected-files" aria-label="Selected files"></ul>
+        <p class="snapshot-hint" data-copy="snapshot">After editing an original, select the updated file again. The browser selection is a snapshot.</p>
+        <div class="demo-strip"><div><span class="eyebrow" data-copy="demoTitle">NO FILES YET?</span><p data-copy="demoHint">Try fictional samples. No real business data.</p></div><div class="demo-actions"><button class="text-button" data-demo="terms" data-copy="termsDemo">Customer / project names ↗</button><button class="text-button" data-demo="before" data-copy="before">Before review ↗</button><button class="text-button" data-demo="after" data-copy="after">After review ↗</button><button class="text-button" data-demo="miss" data-copy="miss">Known OCR miss ↗</button></div></div>
+      </section>
+      <aside class="settings-panel" aria-labelledby="settings-heading">
+        <div class="step-heading"><span class="step-number">02</span><h2 id="settings-heading" data-copy="settingsTitle">Add your context</h2></div>
+        <p class="field-intro" data-copy="settingsHint">Email, authentication fields and cookies are checked automatically. Add names or domains you want kept private; both fields are optional.</p>
+        <label for="terms" data-copy="terms">Extra checks: sensitive words / phrases (optional)</label>
+        <textarea id="terms" rows="3" placeholder="Project Cedar&#10;Acme Training" spellcheck="false" autocapitalize="off" aria-describedby="terms-help"></textarea>
+        <p class="field-help" id="terms-help" data-copy="termsHint">Enter a customer name, internal project name or phrase you want kept private, one per line. Literal, case-insensitive matching within a line; no automatic judgment. Chinese terms work in text files; image OCR currently reads English.</p>
+        <label for="domains" data-copy="domains">Extra checks: internal domains (optional)</label>
+        <textarea id="domains" rows="2" placeholder="northstar.test&#10;company.internal" spellcheck="false" autocapitalize="off" aria-describedby="domains-help"></textarea>
+        <p class="field-help" id="domains-help" data-copy="domainsHint">For the original sample, enter northstar.test. For your files, enter an internal domain only, without https:// or a path, one per line or comma separated. Includes subdomains and emails on those domains.</p>
+        <details class="advanced"><summary data-copy="advanced">Optional: session cookie names</summary><label for="cookies" data-copy="cookies">Sensitive session cookies</label><textarea id="cookies" rows="2" placeholder="session_id&#10;auth_session" spellcheck="false" autocapitalize="off"></textarea><p class="field-help" data-copy="cookiesHint">Only enter cookie names, never their values. Other populated cookies generate a review warning.</p></details>
+        <p class="policy-hint" id="policy-hint"></p>
+        <div class="scan-controls"><button class="button primary" id="scan" disabled data-copy="scan">Check selected files →</button><p data-copy="localHint">File bytes go only to the process on this computer. Nothing is sent to a cloud service.</p></div>
+        <div class="health" id="health" role="status" data-copy="checkingHealth">Checking image scanning…</div>
+      </aside>
+    </div>
+    <section class="review-section" id="review" aria-labelledby="review-heading" hidden>
+      <div class="review-toolbar"><div class="step-heading"><span class="step-number">03</span><h2 id="review-heading" data-copy="reviewTitle">Review before sharing</h2></div><div><button class="text-button" id="reselect" data-copy="reselect">Choose updated files ↗</button><button class="text-button" id="clear" data-copy="clear">Clear results</button></div></div>
+      <div class="progress-area" id="progress" role="status" hidden><div class="progress-heading"><span class="spinner" aria-hidden="true"></span><strong id="progress-text"></strong></div><p id="progress-detail"></p><div class="progress-track"><span id="progress-bar"></span></div></div>
+      <div class="notice error-notice" id="scan-error" role="alert" hidden></div>
+      <div id="result-summary" class="result-summary" role="status" hidden></div>
+      <p id="result-context" class="result-context" hidden></p>
+      <div id="cards"></div>
+      <p class="review-boundary" id="review-boundary" data-copy="boundary" hidden>Image markings locate evidence; they do not redact it. Review or edit the originals in your usual tools, then choose the updated files and scan again.</p>
+    </section>
+    <section id="empty-state" class="empty-state"><span aria-hidden="true">↳</span><div><h2 data-copy="emptyTitle">Your review starts here.</h2><p data-copy="emptyHint">Choose files or try a sample. Results show image regions and clickable masked log excerpts.</p></div></section>
+  </main>
+  <footer><strong>AgentSafe</strong><p data-copy="footer">Private development preview · OCR currently reads English text. No automatic redaction or upload protection. A scan cannot certify privacy. Session settings and results are not saved by AgentSafe.</p></footer>
+</div>
+</body>
+</html>

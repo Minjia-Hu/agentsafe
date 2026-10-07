@@ -14,7 +14,7 @@ def safe_path(value: str) -> str:
 def render(report: ScanResult, console: Console) -> None:
     console.print("AgentSafe Local Artifact Check", style="bold cyan", markup=False)
     console.print(f"Scope: {len(report.files)} explicit local files | Processing: local", markup=False)
-    console.print(f"Policy: {report.domain_count} sensitive domains, {report.cookie_count} session cookie names configured", markup=False)
+    console.print(f"Policy: {report.domain_count} sensitive domains, {report.cookie_count} session cookie names, {report.term_count} sensitive terms configured", markup=False)
     if not report.config_loaded:
         console.print("No sensitivity configuration supplied; organization-specific sensitivity is unknown.", markup=False)
     for file in report.files:
