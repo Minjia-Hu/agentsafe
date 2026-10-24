@@ -30,6 +30,10 @@ the recorded CI run passed for code commit the tested revision:
 
 Each job built both distributions, installed the wheel into a separate environment, ran `doctor` and the CLI demo outside the checkout, and exercised the synthetic authenticated GUI / PNG-copy smoke. These hosted automated checks do not replace a fresh end-user Mac or browser interaction test. The repository remains private; publication still requires the final owner decision.
 
+## October 24, 2026 — stop acknowledgement ordering
+
+The documentation-only follow-up at the tested revision exposed an intermittent lifecycle failure on Ubuntu/Python 3.12: `/api/stop` sent its success response before clearing the session and token. The handler now closes the session before acknowledging success. The existing end-to-end stop test requires cleared state and rejected subsequent unauthenticated access; it is retained without sleeps or retries. This follow-up requires a new full CI run; the earlier successful matrix above remains historical evidence for its named commit.
+
 ## Earlier local checks
 
 October 6, 2026: **93 tests passed, zero skipped** on the reference Mac, including authenticated loopback requests, malformed/oversized selection, visible coverage failures, missing OCR, masking, real OCR, clear/rescan and shutdown. Browser checks exercised the file chooser, invalid domain settings, original files (4 HIGH / 2 WARN), reviewed files (0 HIGH / 1 WARN), image highlighting and refresh recovery. The actual GUI screenshot in the README contains fictional data. Native LaunchServices startup was verified with a loopback-only listening process. Some later browser-tool button dispatches timed out; drag/drop and small-screen layout have not been fully exercised. No clean-machine/platform or independent usability claim follows.

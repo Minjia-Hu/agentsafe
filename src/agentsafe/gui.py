@@ -292,8 +292,8 @@ class Handler(BaseHTTPRequestHandler):
             self.respond(200 if session.clear() else 409, {"message": "Wait for the current scan to finish."})
             return
         if self.path == "/api/stop":
-            self.respond(200, {"state": "stopped"})
             session.close()
+            self.respond(200, {"state": "stopped"})
             return
         if self.path not in {"/api/scan", "/api/redact", "/api/demo/before", "/api/demo/after", "/api/demo/miss", "/api/demo/terms"}:
             self.respond(404, {"message": "Resource not found."})
