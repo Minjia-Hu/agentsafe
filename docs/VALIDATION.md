@@ -32,7 +32,7 @@ Each job built both distributions, installed the wheel into a separate environme
 
 ## October 24, 2026 — stop acknowledgement ordering
 
-The documentation-only follow-up at the tested revision exposed an intermittent lifecycle failure on Ubuntu/Python 3.12: `/api/stop` sent its success response before clearing the session and token. The handler now closes the session before acknowledging success. The existing end-to-end stop test requires cleared state and rejected subsequent unauthenticated access; it is retained without sleeps or retries. This follow-up requires a new full CI run; the earlier successful matrix above remains historical evidence for its named commit.
+The documentation-only follow-up at the tested revision exposed an intermittent lifecycle failure on Ubuntu/Python 3.12: `/api/stop` sent its success response before clearing the session and token. The handler now closes the session before acknowledging success. The existing end-to-end stop test requires cleared state and rejected subsequent unauthenticated access; it is retained without sleeps or retries. After the fix, all 156 local tests passed. the recorded CI run passed for the tested revision on all three matrix environments, including distribution builds and installed-wheel checks. The earlier successful matrix above remains historical evidence for its named commit.
 
 ## Earlier local checks
 
