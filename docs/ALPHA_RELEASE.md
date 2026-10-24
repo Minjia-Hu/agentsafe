@@ -16,9 +16,11 @@ The Alpha does not include an independent Mac installer, cloud scanning, additio
 
 ## Preparation evidence
 
-The final installation, test, package and repository-audit results are recorded in [VALIDATION.md](VALIDATION.md). Local preparation checks are recorded; remote CI verification follows the private push. A local test run is not a GitHub Actions result or a clean-machine test.
+The final installation, test, package and repository-audit results are recorded in [VALIDATION.md](VALIDATION.md). Local preparation and private synchronization are complete. The three-job CI run passed for code commit the tested revision; the linked record contains exact results and remaining limitations. A local test run is not a GitHub Actions result or a clean-machine test.
 
 ## Final publication steps
+
+Steps 1–2 are complete for the code commit recorded above. The remaining decision is whether to publish this reviewed scope.
 
 1. Finish the source/wheel checks, review repository content and history, and commit/sync the prepared changes to the existing private remote.
 2. Review the exact remote commit and CI result. Do not imply Linux or additional Python versions are validated until their jobs pass.

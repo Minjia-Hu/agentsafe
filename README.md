@@ -16,7 +16,7 @@ AgentSafe finds supported privacy signals in screenshots and logs, shows where t
 
 ## Try it from source
 
-Start with macOS and Python 3.12. Python 3.11+ is required by the package; image checks also require Tesseract with English (`eng`) data. See [validation](docs/VALIDATION.md) for exactly what has been exercised. Linux CI is configured; Windows is not yet validated.
+Start with macOS and Python 3.12. Python 3.11+ is required by the package; image checks also require Tesseract with English (`eng`) data. See [validation](docs/VALIDATION.md) for exactly what has been exercised. CI passed on Ubuntu 24.04 / Python 3.11 and 3.12, and macOS 14 / Python 3.12. Windows is not yet validated.
 
 On macOS, install [Homebrew](https://brew.sh/) first if you do not already have it. Then open Terminal:
 

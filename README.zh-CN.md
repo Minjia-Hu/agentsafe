@@ -16,7 +16,7 @@ AgentSafe 检查截图和日志中的受支持隐私信号，定位需要审阅�
 
 ## 从源码开始体验
 
-建议先使用 macOS 和 Python 3.12。软件包要求 Python 3.11+，图片检查还需要 Tesseract 与英语（`eng`）数据。[验证记录](docs/VALIDATION.zh-CN.md)列明实际检查过的环境。已配置 Linux CI；Windows 尚未验证。
+建议先使用 macOS 和 Python 3.12。软件包要求 Python 3.11+，图片检查还需要 Tesseract 与英语（`eng`）数据。[验证记录](docs/VALIDATION.zh-CN.md)列明实际检查过的环境。Ubuntu 24.04 / Python 3.11、3.12 与 macOS 14 / Python 3.12 的 CI 已通过；Windows 尚未验证。
 
 macOS 用户如未安装 [Homebrew](https://brew.sh/)，请先安装，然后打开终端执行：
 
