@@ -2,13 +2,13 @@
 
 ## Scope and changes
 
-Read the product and architecture documents before changing behavior. Preserve existing work. New integrations, publication and destructive history changes require explicit maintainer authorization. This revision describes the project at this point in its development; later revisions may change scope.
+Read the product and architecture documents before changing behavior. Preserve existing work. New integrations, publication and destructive history changes require explicit maintainer authorization. The current scope is the experimental source Alpha described in PRODUCT.md. Release preparation does not authorize repository visibility changes, tags or package publication.
 
 ## Product constraints
 
 - Read PRODUCT.md and ARCHITECTURE.md before implementation. ROADMAP.md separates the demo, candidate launch and later learning; it does not authorize scope expansion.
-- The private experiment includes a local GUI and shared CLI: explicit PNG/JPEG and UTF-8 log/text scanning, local OCR, small configured/structural rules including literal sensitive terms, masked locations, scan, doctor, bundled demo and local image-region review. The approved GUI extension adds manual opaque image redaction into a new PNG copy, recheck and explicit download. No staged scanning, visibility lookup, hooks, persistent approvals or ignores.
-- No real private materials or user recruitment is required to begin an approved technical experiment. Create fictional positive, benign and failure cases; do not collect customer data or valid credentials.
+- The Alpha includes a local GUI and shared CLI: explicit PNG/JPEG and UTF-8 log/text scanning, local OCR, small configured/structural rules including literal sensitive terms, masked locations, scan, doctor, bundled demo and local image-region review. The GUI adds manual opaque image redaction into a new PNG copy, recheck and explicit download. No staged scanning, visibility lookup, hooks, persistent approvals or ignores.
+- No real private materials or user recruitment is required to begin an technical experiment. Create fictional positive, benign and failure cases; do not collect customer data or valid credentials.
 - Describe target users and demand as hypotheses. Synthetic success and developer self-testing do not establish market fit or real-world accuracy.
 - The target is accidental sharing by cooperative users, not adversarial agent enforcement or universal DLP. AI authorship is unknown unless explicitly supplied.
 - Distinguish evidence, extraction quality, coverage and decision. In previews, no-readable-text must be visibly marked for manual review, not shown as a green CHECKED status; do not convert it into an invented finding. Text findings are clickable only when a masked excerpt of that inspected line exists; otherwise show a noninteractive location. Image controls require mapped regions. Generic emails/cookies or uncertain OCR warn; strong configured/structural findings may be HIGH. Do not require approval merely because an input is an image.
@@ -29,7 +29,7 @@ Read the product and architecture documents before changing behavior. Preserve e
 - Raw local preview materialization must be explicit, outside the worktree, access-restricted where supported and cleaned according to the documented lifecycle.
 - Do not upload real artifacts or publish packages/releases without authorization. Recommend nonsensitive exception reasons and synthetic public bug reports.
 
-## Engineering after approval
+## Engineering
 
 - Prefer one Python package and small modules; no service architecture, plugin framework or custom credential-rule catalog. Validate the provisional OCR stack on the available machine before claiming platform support.
 - Use Git/native tools with argument arrays and bounded subprocess execution. Never interpolate paths or findings into a shell command.
@@ -43,7 +43,7 @@ Read the product and architecture documents before changing behavior. Preserve e
 ## Documentation and coordination
 
 - Formal repository documentation is English by default. User-facing discussion may be Chinese.
-- Keep scope/policy tables, CLI examples, exit codes, support tiers and limitations consistent across all five drafts and their Chinese translations. Preserve research citations when revising scope; distinguish old findings from newly verified research.
+- Keep scope/policy tables, CLI examples, exit codes, support tiers and limitations consistent across the product documents and their Chinese translations. Preserve research citations when revising scope; distinguish old findings from newly verified research.
 - Link primary sources for competitor/technical claims and distinguish documented claims, tested behavior and product hypotheses. Record research dates.
 - Use delegation only when the user or an applicable skill explicitly calls for it. A document-only reader review is permissible under the doc-coauthoring skill; it must not create implementation work.
 - Report changes, meaningful validation, uncertainties and any unmet criteria. Do not mark a demo or release ready based on a planned checklist.

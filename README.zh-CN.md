@@ -12,7 +12,9 @@ AgentSafe 检查截图和日志中的受支持隐私信号，定位需要审阅�
 
 **实验性 Alpha，采用源码安装。** 检测范围有限，界面可能变化。这是人工触发的审阅工具，不拦截 Git push 或上传；零发现不代表安全。此 Alpha 尚不提供独立安装包或 PyPI 安装。
 
-![本地 GUI 检查虚构客户与项目名称](docs/images/gui-preview.png)
+![本地 GUI 检查虚构客户与项目名称](docs/images/gui-preview.jpg)
+
+截图来自使用虚构数据的开发流程，文字和图标可能与当前 Alpha 不同。
 
 ## 从源码开始体验
 
@@ -45,7 +47,7 @@ Ubuntu/Debian 起步方式：用包管理器安装 `git python3 python3-venv tes
 
 保存的 `*-redacted.png` 使用不透明像素覆盖，原件不变。重检沿用原扫描的敏感性设置，仅针对这张新图片，不会同时重检之前选中的其他文件。分享前仍需查看整个副本，未选择区域可能保留敏感内容。
 
-![生成 PNG 副本之前手动遮盖虚构名称](docs/images/gui-redaction.png)
+![生成 PNG 副本之前手动遮盖虚构名称](docs/images/gui-redaction.jpg)
 
 检查自己的材料时，选择 PNG/JPEG 截图或 UTF-8 `.log`/`.txt`。可选的「敏感词／短语」填写客户名、项目名等，每行一项；「内部域名」填 `northstar.test` 这样的域名，而非完整 URL。也可配置会话 Cookie 名称。留空仍会检查普通邮箱、认证字段与 Cookie，但不会推断你公司的敏感性规则。设置仅保留在当前会话中。
 

@@ -1,45 +1,42 @@
 # Validation record
 
-This is measured evidence on named environments, not a general accuracy or platform-support claim. The historical runs below predate the Alpha preparation.
+[中文](VALIDATION.zh-CN.md)
 
-## October 18, 2026 — Alpha preparation
+Measured evidence on named environments does not establish general accuracy or universal platform support. All test/demo artifacts are fictional.
 
-- A new virtual environment installed the project from source through the normal isolated build and dependency resolution. Reference host: macOS, Python 3.12.12, Tesseract 5.5.2 with English data, Pillow 12.3.0, Rich 14.3.4 and Typer 0.27.3. Python and Tesseract were already installed on this Mac; this is not a clean-machine installation claim.
-- **156 tests passed in 15.42 seconds, zero skipped**, in that fresh environment. `doctor` reported ready.
-- Source and wheel distributions for **0.1.0a1** built successfully. Outside the checkout, the installed-package smoke exercised packaged GUI/icon assets, authentication, the fictional terms scan, opaque PNG generation, original-policy recheck, exact exported pixels and session clear.
-- Gitleaks **8.30.1**, downloaded from its official release and checked against its published SHA-256, reported **zero findings** in all four existing reachable commits and the 109-file candidate tree. Supplementary review found no personal workstation paths in current/historical text; flagged email-like test strings were fictional. Documentation screenshots contain fictional examples. This is a scoped publication review, not a guarantee that every sensitive datum or vulnerability has been found.
-- GitHub repository metadata confirmed **private** visibility. The three-job CI matrix was configured; see the completed October 24 run below.
+## Source Alpha checks — October 18–24, 2026
 
-Open checks: a completely fresh Mac following Homebrew setup, Windows, broader browser/responsive coverage, pointer-drag ergonomics and independent-user feedback. No public release or registry upload has occurred.
+- A fresh virtual environment installed source with build isolation and normal dependency resolution on macOS, Python 3.12.12, Tesseract 5.5.2 / English, Pillow 12.3.0, Rich 14.3.4 and Typer 0.27.3. Python/OCR were already present; this was not a clean-machine setup test.
+- 156 behavior tests passed with zero skipped. Source archive and wheel for `0.1.0a1` built successfully. A separate installed-wheel environment outside the checkout passed `doctor`, the bundled CLI demo and the authenticated GUI/manual-PNG smoke.
+- The installed smoke checks packaged assets, session authentication, fictional phrase detection, opaque RGB pixels, original-policy recheck, exact exported bytes and clearing state.
+- macOS paths under the `/var` symlink alias caused CLI demo inputs to be rejected. Installing under the resolved `/private/var` path passed; the README documents the symlink restriction. No input safeguard was weakened.
+- CI exposed and helped fix Python 3.11 f-string compatibility and a stop-response race. Session state/token are now cleared before `/api/stop` acknowledges success.
 
-## October 24, 2026 — final wheel follow-up
+The following matrix passed on the source implementation before the latest documentation cleanup. The workflow runs again on each pushed candidate; consult [CI](https://github.com/Minjia-Hu/agentsafe/actions/workflows/ci.yml) for the exact revision and result rather than assuming every later revision passed.
 
-The final source archive and wheel were rebuilt through build isolation and installed into another independent environment. An initial installation under macOS's `/var` alias caused the CLI demo to exit 2: packaged input paths contained a symlink, which the scanner deliberately rejects. Installing under the resolved `/private/var` path passed `doctor`, `demo --no-open` (exit 0, expected synthetic results) and `scripts/smoke_installed.py` outside the checkout. The README now states this path restriction. No detector behavior was weakened to make the smoke check pass.
-
-The first GitHub CI run at the tested revision passed macOS/Python 3.12, but exposed a Python 3.11 syntax error in a preview f-string expression containing a newline escape. The translated text was moved into a separate variable, preserving output; 35 local preview/log tests passed after that change. The complete matrix then passed as recorded below.
-
-## October 24, 2026 — remote CI passed
-
-the recorded CI run passed for code commit the tested revision:
-
-| Environment | OCR | Behavior tests | Packaging / installed checks |
+| Environment | OCR | Behavior tests | Distribution / installed checks |
 | --- | --- | --- | --- |
 | Ubuntu 24.04 / Python 3.11 | Tesseract 5.3.4, eng | 156 passed, 0 skipped | Passed |
 | Ubuntu 24.04 / Python 3.12 | Tesseract 5.3.4, eng | 156 passed, 0 skipped | Passed |
 | macOS 14 / Python 3.12 | Tesseract 5.5.3, eng | 156 passed, 0 skipped | Passed |
 
-Each job built both distributions, installed the wheel into a separate environment, ran `doctor` and the CLI demo outside the checkout, and exercised the synthetic authenticated GUI / PNG-copy smoke. These hosted automated checks do not replace a fresh end-user Mac or browser interaction test. The repository remains private; publication still requires the final owner decision.
+The latest local candidate check on October 24 passed all 156 tests with zero skipped (10.21 seconds). Source and wheel builds succeeded; the installed wheel passed doctor, the fictional demo and the GUI/PNG-copy smoke outside the checkout. Local Gitleaks 8.30.1 scans of reachable history, complete historical blobs and the candidate tree returned zero findings. Documentation links and English/Chinese scope consistency were also reviewed.
 
-## October 24, 2026 — stop acknowledgement ordering
+## Browser and scanner evidence
 
-The documentation-only follow-up at the tested revision exposed an intermittent lifecycle failure on Ubuntu/Python 3.12: `/api/stop` sent its success response before clearing the session and token. The handler now closes the session before acknowledging success. The existing end-to-end stop test requires cleared state and rejected subsequent unauthenticated access; it is retained without sleeps or retries. After the fix, all 156 local tests passed. the recorded CI run passed for the tested revision on all three matrix environments, including distribution builds and installed-wheel checks. The earlier successful matrix above remains historical evidence for its named commit.
+Earlier local checks exercised file selection, invalid context, stale-result feedback, refresh recovery, image finding selection, masked log-line highlighting, manual pixel coordinates, undo and a two-region PNG copy/recheck with a download link. Reference synthetic outcomes were 4 HIGH / 2 WARN for original samples, 0 HIGH / 1 WARN for prepared reviewed samples, and 5 HIGH for the customer/project sample. OCR versions can change individual matches.
 
-## Earlier local checks
+Behavior tests cover supported positives and benign boundaries, literal terms and Chinese log phrases, masking/escaping, corrupt/unsupported/oversized inputs, missing OCR, empty OCR output, authentication, stale review IDs, unchanged originals, output pixels and session lifecycle. See [fixture labels](../examples/synthetic/README.md) for expectations and the known small/blurred-image miss.
 
-October 6, 2026: **93 tests passed, zero skipped** on the reference Mac, including authenticated loopback requests, malformed/oversized selection, visible coverage failures, missing OCR, masking, real OCR, clear/rescan and shutdown. Browser checks exercised the file chooser, invalid domain settings, original files (4 HIGH / 2 WARN), reviewed files (0 HIGH / 1 WARN), image highlighting and refresh recovery. The actual GUI screenshot in the README contains fictional data. Native LaunchServices startup was verified with a loopback-only listening process. Some later browser-tool button dispatches timed out; drag/drop and small-screen layout have not been fully exercised. No clean-machine/platform or independent usability claim follows.
+## Publication review
 
-October 7, 2026: **122 tests passed, zero skipped** on the reference Mac. New cases cover configured phrases without domains, Chinese log text, literal punctuation/regex-like text, English word boundaries, masking, configuration/resource failures and OCR phrase boxes/confidence. The fictional business image/log produced 2 + 3 HIGH findings. Browser verification exercised the new sample, image click/highlight, user-selected files with three explicit phrases, invalid-term/stale-result feedback, and rechecking the same files with empty settings (0 findings) and restored terms (5 HIGH). Installation and the development launcher were rebuilt from this source; native launch served the new interface on a loopback-only listener. This remains synthetic evidence; clean-machine distribution and wider UI testing are pending.
+The candidate tree and reachable historical file versions were reviewed with a local secret scanner and supplementary text/image checks. Fictional examples and original project artwork are retained. A zero-finding secret scan is limited evidence, not proof that no private datum or vulnerability exists. Public issues should use fictional reproductions; see [SECURITY.md](../SECURITY.md).
 
-October 7, 2026, masked-log follow-up: **137 tests passed, zero skipped**. Added tests cover auth/cookie/term/domain/email masking, overlapping spans, malformed cookie context, placeholders, HTML/control escaping, long-line windows, default-off preview capture, unchanged snapshot/originals and no partial excerpts after failures. Browser checks verified original (4 HIGH / 2 WARN), reviewed (0 HIGH / 1 WARN) and business (5 HIGH / 0 WARN) samples, clicks moving highlight/focus between lines and Chinese text masking. No browser warnings/errors were observed in that run. The screenshots in the README contain fictional data only; broader responsive, clean-machine and independent-user validation remain pending.
+## Remaining gaps
 
-October 7, 2026, manual-copy and favicon follow-up: **156 tests passed, zero skipped**. Export tests inspect real opaque RGB pixels, exclusive rectangle edges, metadata/alpha removal and unchanged originals; HTTP tests cover stale review IDs, wrong file types/rectangles, authentication, size limits, missing OCR, session cleanup and packaged icon assets. A real browser run verified three favicon choices, detected-region selection, manual pixel coordinates, undo, a two-region copy recheck (one image, 0 HIGH / 0 WARN) and its exact PNG download link. The original term policy was retained. Pointer-drag ergonomics, clean-machine installation and the preferred-browser download experience still need usability review.
+- Completely fresh end-user Mac installation, including Homebrew setup.
+- Windows and platforms outside the recorded matrix.
+- Broader browser/responsive coverage, pointer-drag ergonomics and browser-specific download behavior.
+- Independent usability, repeated use, real-world false-positive/false-negative rates and market demand.
+
+Source Alpha preparation does not imply a published release, a standalone installer or production readiness.

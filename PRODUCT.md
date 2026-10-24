@@ -1,73 +1,34 @@
 # AgentSafe — Product Definition
 
-**Status:** Private scanner/static demo implemented October 5, 2026; GUI implemented October 6, 2026; configured sensitive terms, masked log preview and manual PNG copy/recheck added October 7, 2026. Public launch and Git integration are not authorized.
-**Research date:** October 5, 2026; retained research below has not been re-evaluated in this revision.
-**Working name:** AgentSafe; naming clearance is unresolved.
+[中文](PRODUCT.zh-CN.md)
+
+**Status:** Experimental source Alpha, version `0.1.0a1`. The local GUI/CLI and manual PNG-copy workflow are implemented. Git integration and automatic redaction are not implemented.
+**Research date:** October 5, 2026. Competitor research below has not been re-evaluated in this revision.
+**Working name:** AgentSafe; naming clearance and package-name ownership remain unresolved. Source installation uses this repository, not a package named `agentsafe` on PyPI.
 
 <a id="second-pass-review--october-5-2026"></a>
 
-## Alpha preparation — October 18, 2026
+## Current experience
 
-These steps precede independent Mac packaging. The repository remains private until the final publication action is explicitly confirmed; no public release or registry publication is claimed. Current validation is recorded in [docs/VALIDATION.md](docs/VALIDATION.md); release preparation and outstanding gates are tracked in [docs/ALPHA_RELEASE.md](docs/ALPHA_RELEASE.md). Historical dates below describe earlier scope and do not override this update.
+Check screenshots and debugging logs locally before sharing. The browser GUI is the primary interactive interface; the CLI uses the same scanning core. Select PNG/JPEG screenshots or UTF-8 `.log`/`.txt` files, optionally enter sensitive phrases, domains or session-cookie names, then inspect findings and coverage. Bundled fictional samples require no private material.
 
-## Current product experience — October 6, 2026
+- Images: click mapped findings, review the whole image, optionally select detected boxes or draw rectangles, create an opaque PNG copy, recheck that exact copy with the original policy, and explicitly save it. Originals remain unchanged. The new report covers only the new image.
+- Logs: click a finding to locate its bounded, masked excerpt. Edit the original with an existing editor, reselect the updated file and scan again. There is no raw-log reveal or log export.
+- Uncertainty: ordinary emails/cookies and uncertain OCR warn. No readable image text calls for manual review. Zero findings never certify privacy.
 
-The local browser app is the primary interactive entry: select screenshots/logs, optionally enter sensitive words/phrases, internal domains and session-cookie names, start a scan, review image regions/masked text findings, manually cover screenshot regions into a new PNG, recheck/save that copy, or edit logs with existing tools, reselect changed files and scan again. Bundled fictional cases let a new user try it without private material.
+Sensitive phrases are explicit literal context, not automatic business classification. They match within one extracted line, case-insensitively with flexible spacing and ASCII word edges. Up to 100 phrases of 2–128 characters are accepted. Chinese phrases work in UTF-8 text; image OCR remains English. Context is optional and lasts only for the session. Normal explanations hide matched values; explicitly displayed image pixels remain visible.
 
-This adds an operating interface to the previous static result viewer. It does not broaden detection formats, add automatic redaction or intercept publishing. The existing Python/OCR/rule core processes explicitly selected snapshots. Browser-to-process communication uses an authenticated loopback-only server; no external artifact transfer is involved.
+The GUI connects only to an authenticated local process. The A monogram is the default application/favicon identity. Source installation requires Python and Tesseract; the optional Mac development launcher depends on a prepared local runtime and is not a standalone installer. See [validation](docs/VALIDATION.md) for tested environments and remaining gaps.
 
-The immediate milestone is a complete workflow for someone unfamiliar with terminals in the prepared workspace. The Mac development launcher is double-clickable but still depends on the checkout's runtime. A self-contained installer, validated OCR distribution and clean-machine usability remain launch work. Demand and real-world accuracy remain hypotheses.
-
-## Configured business context — October 7, 2026
-
-Optional configuration includes optional `sensitive_terms` in the shared GUI/CLI: customer names, internal project names or phrases the user explicitly wants kept private. No domain configuration is needed for this rule. General email/authentication/cookie checks still run with empty context fields.
-
-Match literal text within one extracted line, case-insensitively, with flexible spacing between phrase words and ASCII word edges for English names. Trim/collapse ordinary spaces and deduplicate case-insensitively; accept at most 100 terms, 2–128 characters each, no controls. Spaces/commas belong to a phrase; the GUI uses one phrase per line. No regex, fuzzy spelling, multiline joins, automatic confidential-name discovery or business-semantic classification. Chinese phrases work in UTF-8 logs/text; image OCR remains English. Reliable matches are HIGH; uncertain OCR matches WARN. Explanations hide matched text while image regions or text line numbers locate it.
-
-A fourth GUI sample, **Customer / project names**, checks fictional Project Cedar / Acme Training in an English screenshot and a log with a Chinese fictional customer name. It runs the same scanner, not hard-coded findings. Static CLI `demo` retains its original three groups.
-
-The subsequent manual image-copy workflow was approved and implemented as described below. Independent installation remains a proposed later milestone. Unknown business content can still pass all supported rules. Do not promise a complete privacy firewall or infer real-world accuracy from these synthetic cases.
-
-## Masked log review — October 7, 2026
-
-The GUI and explicit CLI previews now show only lines containing findings, with original line numbers, field names and bounded context. Authentication/cookie values and detected phrases/domains/emails become `[HIDDEN]` (Chinese UI: `[隐藏]`). Click a finding to highlight and focus its line; multiple findings on the same line share that line.
-
-Unrelated lines and long gaps are omitted. No findings means no log excerpt, not permission to publish. Excerpts may retain sensitive content outside the declared rules and must stay private. This is a read-only review aid: no raw-log reveal, automatic sanitized export or change to the original. Normal terminal scans still output reasons/locations only; severity and exit meanings are unchanged.
-
-## Manual image copies and browser identity — October 7, 2026
-
-The GUI lets the user select a detected box (with a 4 px margin), drag an arbitrary rectangle or enter coordinates, then undo/reset. No regions are selected automatically. Create and recheck one new RGB PNG with opaque pixel replacement and the original scan's policy; Save downloads the exact newly inspected bytes. Original files are unchanged. The new result explicitly covers only that image, not other previously selected files. Remaining findings, no-readable-text and failed coverage remain visible; never call the copy safe. A saved copy has no source metadata but can still contain private visible content outside chosen regions. Logs and static CLI previews have no export/editor.
-
-The A monogram (01) is the default header and browser favicon. Packaged SVG/PNG/ICO assets also retain the review-frame and folded-artifact alternatives. A local comparison page provides small-size/context previews and per-tab favicon switching; previewing another study does not change the app's default. Public naming clearance, installation, new formats, automatic redaction, publication and Git protection remain deferred.
-
-## Current proposal: a synthetic-data experiment
-
-None is a prerequisite for a bounded technical demo.
-
-This revision consolidates the earlier reviews into one current proposal. Previous blanket image approvals, mandatory interviews before a demo, staged scanning and a complete pre-push lifecycle are no longer the proposed demo scope. Their previous wording remains available in Git history. This does not validate market demand or authorize the conditional Git route.
-
-| Known now | Still a hypothesis |
-| --- | --- |
-| Fictional fixtures can be created without private data | OCR and a small rule set provide useful incremental help |
-| The repository is private and contains a local demo | Git push is the right interception point |
-
-## 1. Recommendation
-
-Start with a small local **pre-publication artifact check** as an open-source experiment. The proposed demo reads explicitly named PNG/JPEG screenshots and UTF-8 log/text files, identifies a small set of configured or structural signals, and reports masked findings with locations. It neither uploads files nor intercepts publication.
-
-Proposed demo promise:
+## 1. Product direction
 
 > Check screenshots and debugging logs locally before you share them.
 
-Brand line:
-
 > Don't accidentally publish what your AI agent saw or generated.
 
-The longer-term vision remains privacy protection for AI-generated development artifacts. AI creation is context, not a reliable file classification. The product should inspect supported inputs regardless of who created them.
+AgentSafe is a small pre-publication artifact check, not a general secret scanner or a universal privacy firewall. Supported files are inspected regardless of whether a person or an AI created them; AI provenance is not inferred. GitHub issues, reports and other sharing destinations motivate the manual workflow, but the tool does not intercept any upload.
 
-Prove technical feasibility and an understandable review interaction first. Then use a runnable demonstration to discover whether people have a recurring job for it and where they publish. Do not build an enterprise platform or a full Git integration merely to make the demo look complete.
-
-An OCR wrapper is easy to copy. Any eventual differentiation must come from useful evidence, low unwanted interruption, transparent coverage and a workflow people repeatedly use. Demand, retention and differentiation remain unvalidated.
+Technical feasibility is demonstrated with fictional positive, benign and failure cases. Real-world accuracy, recurring demand and adoption remain unvalidated. An OCR wrapper is easy to copy: useful evidence, understandable limits and a review process people repeatedly use must justify the tool's friction.
 
 ## 2. What is supported by evidence
 
@@ -75,7 +36,7 @@ Glow's PixelLeak research describes coding agents publishing internal review scr
 
 Our inference: the first audience should be people publishing visual debugging evidence, rather than everyone using an AI editor. A repository-local hook would only help in a public destination where it was installed; it would not automatically protect a new adjacent repository created by an agent.
 
-**Second-pass correction:** [gitshot's documented default backend](https://github.com/vipulgupta2048/gitshot#how-it-works) uploads images as GitHub Release Assets in a dedicated public repository. That upload path does not invoke the developer's local Git pre-push hook. Therefore the cited incident is evidence of artifact exposure, not evidence that this proposed hook would have prevented all or most reported cases. The share of incidents occurring through a covered Git push has not been established.
+**Publication-path limitation:** [gitshot's documented default backend](https://github.com/vipulgupta2048/gitshot#how-it-works) uploads images as GitHub Release Assets in a dedicated public repository. That upload path does not invoke the developer's local Git pre-push hook. Therefore the cited incident is evidence of artifact exposure, not evidence that this proposed hook would have prevented all or most reported cases. The share of incidents occurring through a covered Git push has not been established.
 
 ## 3. Critical assessment
 
@@ -123,9 +84,9 @@ Feature listings establish prior implementations, not product maturity, adoption
 
 The working name already appears in an [archived agent-tool security project](https://github.com/brian93512/agentsafe), a [local-agent sandbox](https://github.com/Debashish-Mukherjee/agent-safe), and a [scoped npm package](https://www.npmjs.com/package/@decionis/agentsafe). These are branding/search/distribution conflicts, not a determination of trademark rights.
 
-Keep the working name during review. Before launch, select a distinctive name and check repository, package, executable and domain availability. Do not tell users to install an unverified package named `agentsafe`. Naming directions such as "ArtifactGate" or "CaptureGate" are suggestions, with availability unchecked.
+The source Alpha uses AgentSafe as a working name and identifies this exact repository as its installation source. Before registry distribution or wider branding, resolve naming and verify repository, package, executable and domain ownership. Do not tell users to install an unverified package named `agentsafe`.
 
-## 5. Target-user hypothesis and access
+## 5. Target-user hypothesis
 
 **Hypothesized user:** a developer who shares screenshots or debugging logs outside their original context and sometimes needs to remove account information, internal URLs or authentication data. Browser-capable coding-agent users and open-source maintainers are possible recruitment pools, not verified customers.
 
@@ -133,7 +94,7 @@ Typical job:
 
 > I want to show a bug or a working change without sharing sensitive context along with it.
 
-Self-testing is the first usability observation; it is not evidence of market demand. After a working demo, seek a small convenience sample, initially about 3–5 people, through existing contacts or communities. Outreach/publication requires its own authorization; do not send messages automatically.
+Self-testing is the first usability observation; it is not evidence of market demand. After a working demo, seek a small convenience sample, initially about 3–5 people, through existing contacts or communities.
 
 Ask about a recent actual sharing event, what they removed, where they posted it and what they did instead of using a scanner. A verbal account is sufficient; do not collect private files. A GitHub star, a positive reaction or a hypothetical willingness to use the tool is not repeated use. If no users can be reached, record demand as unknown and keep further investment bounded.
 
@@ -143,7 +104,7 @@ Exclude enterprise enforcement, adversarial-agent containment, general source-co
 
 The underlying threat is accidental external publication of sensitive development artifacts by cooperative developers or agents. Examples include configured internal hostnames and populated authentication headers. An email or a cookie alone does not establish confidentiality or credential validity.
 
-The proposed demo covers a **manual check of explicit local files**:
+The checker covers a **manual check of explicit local files**:
 
 1. The user selects supported files in the GUI or supplies explicit CLI paths before sharing.
 2. The scanner reads a bounded snapshot of each file locally.
@@ -154,13 +115,13 @@ There is no enforcement at the upload boundary. Changes after scanning invalidat
 
 Trust the local user, configuration and installed dependencies for this accidental-leak model. Treat all file contents as untrusted parser data. Do not execute embedded commands, visit detected URLs or infer AI authorship. Missing tools, unsupported inputs and failed inspections must not become clean results.
 
-The demo excludes Git/index/history inspection, destination visibility, hooks, API/attachment/CI upload interception, credential verification, arbitrary secret detection, automatic customer-name or dashboard classification, hidden metadata and adversarial bypass. OCR can miss tiny, blurred or unsupported-language text. A clean scan means no supported rule matched the inspected input, not that the artifact is safe.
+The Alpha excludes Git/index/history inspection, destination visibility, hooks, API/attachment/CI upload interception, credential verification, arbitrary secret detection, automatic customer-name or dashboard classification, hidden metadata and adversarial bypass. OCR can miss tiny, blurred or unsupported-language text. A clean scan means no supported rule matched the inspected input, not that the artifact is safe.
 
 If a Git gate is later selected, it must inspect all relevant outgoing versions, including files deleted or redacted in later commits, and the actual destination. A worktree scan cannot make that promise. Detailed conditional requirements are in ARCHITECTURE.md.
 
-## 7. Implemented demo scope and experimental policy
+## 7. Current Alpha scope
 
-### Included in the private demo
+### Included
 
 - Local GUI with explicit file selection, session sensitivity settings, progress, shared review rendering, fictional examples and clear/end-session controls; a Mac checkout-dependent launcher. The following CLI scope still applies to the shared core.
 
@@ -172,9 +133,9 @@ If a Git gate is later selected, it must inspect all relevant outgoing versions,
 - Fictional positive, benign and failure fixtures; a documented manual review/edit/rescan workflow.
 - GUI-only manual image covering, new opaque PNG, original-policy recheck and explicit download; originals unchanged.
 
-### Policy hypothesis
+### Implemented policy
 
-| Observation | Proposed behavior |
+| Observation | Current behavior |
 | --- | --- |
 | Configured sensitive domain or literal phrase with reliable extraction | HIGH finding; exit 1 unless a scan error takes precedence |
 | Populated non-placeholder Authorization field or configured session cookie | HIGH structural/configured finding; does not prove the value is a valid credential |
@@ -187,11 +148,11 @@ Reserved example addresses and obvious placeholders should not trigger generic e
 
 There is no visibility-dependent policy, persistent approval, ignore/baseline mechanism or automatic remediation in this experiment. To reduce scope, the user supplies only the paths they want checked; every requested path must appear in coverage. A standalone API key or password in an image is outside the initial rules unless it matches the explicitly supported structure. Installing an existing source scanner does not automatically scan OCR text.
 
-### Outside the demo and default v0.1 proposal
+### Outside this Alpha
 
-Automatic redaction, QR decoding, PDF/video inspection, HAR-specific parsing, archive/LFS extraction, JSON/CSV/report understanding, cloud inference, agent plugins, background monitoring, custom provider-token catalogs, credential validation and enterprise features are deferred. Staged scanning, Git visibility, pre-push installation, ignore patterns and approvals are also outside the demo; include them in a Git-focused v0.1 only if that route is selected explicitly.
+Automatic redaction, QR decoding, PDF/video inspection, HAR-specific parsing, archive/LFS extraction, JSON/CSV/report understanding, cloud inference, agent plugins, background monitoring, custom provider-token catalogs, credential validation and enterprise features are deferred. Staged scanning, Git visibility, pre-push installation, ignore patterns and approvals are also outside this Alpha; include them in a Git-focused v0.1 only if that route is selected explicitly.
 
-## 8. Demo CLI UX
+## 8. CLI UX
 
 These commands are implemented. Install from the local checkout as described in README.md; no public package is available:
 
@@ -246,12 +207,10 @@ A technical demo is ready for review when the documented command really runs on 
 
 Then show the working result to prospective users when access becomes available. Map actual publication routes before investing in a hook. If feedback remains hypothetical or no one can describe a recurring job, keep the project a bounded experiment. If screenshot preparation is useful but Git is irrelevant, choose a standalone check. If the main need is source-code credentials, direct users to established tools.
 
-## 10. v0.1 and pending decisions
+## 10. Alpha scope and future decisions
 
-The default release candidate is a reliable standalone local checker with tested installation, useful diagnostics, documented coverage, a chosen name/license and measured behavior. This is a candidate, not an approved release commitment.
+Version `0.1.0a1` is an experimental standalone local checker distributed from source under the [MIT license](LICENSE). It is not a stable production release. Reproducible installation, honest diagnostics and clear review boundaries take priority over new formats or integrations. Publication is a maintainer release action; preparation alone does not publish anything.
 
-A Git-focused v0.1 is a separate conditional route: add staged preview, outgoing-history scanning, real destination visibility, a repository-local pre-push hook and a narrowly justified exception lifecycle only after relevant workflow evidence and scope approval. UNKNOWN visibility must not silently become PRIVATE. Selective strong-evidence blocking remains the recommendation; blanket image approval is not the default. Do not add both routes' integrations merely for launch breadth.
+A Git gate is a separate future decision. It would require outgoing-history inspection, actual destination identity, unknown-visibility handling and safe hook coexistence. Do not add it solely for launch breadth. Independent installers and further languages/formats also need separate validation.
 
-No real business material, recruited users, public repository, finalized name or license is required to start that private experiment. Public sharing, package distribution and changing repository visibility remain separate actions requiring authorization. The project now includes the MIT license; see LICENSE.
-
-See ROADMAP.md for phases and ARCHITECTURE.md for technical boundaries. Initial synthetic results are recorded; general accuracy, independent adoption and market demand remain unvalidated.
+See [ROADMAP.md](ROADMAP.md), [ARCHITECTURE.md](ARCHITECTURE.md) and the [release checklist](docs/ALPHA_RELEASE.md).

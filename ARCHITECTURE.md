@@ -1,16 +1,14 @@
-# AgentSafe — Proposed Architecture
+# AgentSafe — Architecture
 
-**Status:** Private scanner/static demo implemented October 5, 2026; local GUI added October 6, 2026. Configured literal terms, masked log excerpts and manual opaque image copies added October 7, 2026. Conditional Git design remains unimplemented.
+[中文](ARCHITECTURE.zh-CN.md)
 
-The current proposal is an explicit local file checker using fictional development fixtures. Git integration is a conditional later route. This replaces the earlier mandatory full Git gate architecture; its prior detail remains in Git history. Stack choices are provisional until measured.
+**Status:** Experimental source Alpha `0.1.0a1`: local GUI/CLI, literal context, masked log review and manual opaque PNG copies. Conditional Git design remains unimplemented. The project uses MIT licensing; dependency notices and validated environments are documented separately.
 
-## Alpha preparation — October 18, 2026
-
-These steps precede independent Mac packaging. The repository remains private until the final publication action is explicitly confirmed; no public release or registry publication is claimed. Current validation is recorded in [docs/VALIDATION.md](docs/VALIDATION.md); release preparation and outstanding gates are tracked in [docs/ALPHA_RELEASE.md](docs/ALPHA_RELEASE.md). Historical dates below describe earlier scope and do not override this update.
+One Python package handles explicit local snapshots. The GUI is a short-lived authenticated loopback interface, not a hosted service. Installation requires Python and Tesseract; standalone runtime packaging remains future work. See [validation](docs/VALIDATION.md) for measured support.
 
 ## 1. Minimal stack
 
-| Component | Proposal | Reason and validation |
+| Component | Implementation | Reason and validation |
 | --- | --- | --- |
 | Runtime | Python 3.11+ | Small package and local file-processing ecosystem; verify supported versions before release |
 | CLI | Typer and Rich | Clear commands and terminal output; treat filenames/content as plain untrusted text |
@@ -58,9 +56,9 @@ No persistent finding IDs, manifests, approvals or extraction cache in the demo.
 
 ## 4. Extraction and resource limits
 
-Initial limits to measure, not achieved performance claims:
+Enforced limits; these are resource bounds, not performance claims:
 
-| Resource | Proposed starting bound | Behavior when exceeded |
+| Resource | Enforced bound | Behavior when exceeded |
 | --- | --- | --- |
 | Image file | 10 MiB / 20 megapixels | Error; no silent truncation or downsampling |
 | UTF-8 text | 5 MiB | Error; no prefix-only clean result |
@@ -127,7 +125,7 @@ Latest image/policy/export state is released on new scans, clear, end, idle expi
 
 The local asset allowlist includes `/brand`, three original SVG icons, 32/180 px PNGs and multi-size ICOs, including `/favicon.ico` fallback. `scripts/build_icons.py` creates the geometric designs without remote assets/fonts; package data includes the icon subdirectory. The comparison page switches only its own favicon and uses no stored preference or artifact input. The app uses the A monogram (01) in its header and favicon links; `/favicon.ico` serves that same design. CSP allows same-origin icon images plus existing PNG data URLs, not external image resources.
 
-## 6. Proposed repository structure
+## 6. Repository structure
 
 The following modules and synthetic examples now exist. Failure fixtures are created in pytest temporary directories; there is no persistent private-data corpus.
 

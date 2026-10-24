@@ -12,7 +12,9 @@ AgentSafe finds supported privacy signals in screenshots and logs, shows where t
 
 **Experimental Alpha — source installation.** Expect limited detection coverage and changes to the interface. This is a manual review tool: it does not intercept Git pushes or uploads, and zero findings do not certify privacy. No standalone installer or PyPI installation is offered in this Alpha.
 
-![Local GUI checking fictional customer and project names](docs/images/gui-preview.png)
+![Local GUI checking fictional customer and project names](docs/images/gui-preview.jpg)
+
+Screenshots show fictional data from the development workflow; wording and icons may differ from the current Alpha.
 
 ## Try it from source
 
@@ -45,7 +47,7 @@ Ubuntu/Debian starting point (Linux validation status is in the record above): i
 
 The saved `*-redacted.png` contains opaque replacement pixels; the original is unchanged. Rechecking uses the original scan's sensitivity settings and covers only the new image. Other previously selected files are not rechecked in that result. Review the whole copy before sharing: unselected content may still be sensitive.
 
-![Manual covering of fictional names before creating a PNG copy](docs/images/gui-redaction.png)
+![Manual covering of fictional names before creating a PNG copy](docs/images/gui-redaction.jpg)
 
 For your files, select PNG/JPEG screenshots or UTF-8 `.log`/`.txt` files. Optional **Sensitive words / phrases** can contain customer/project names, one per line; **Internal domains** accepts domains such as `northstar.test`, not full URLs. Configured session-cookie names are also supported. Empty context fields still allow general email/authentication/cookie checks; organization-specific sensitivity is not inferred. Settings last only for this session.
 
