@@ -1,8 +1,12 @@
 # AgentSafe — Proposed Architecture
 
-**Status:** Private scanner/static demo implemented October 5, 2026; local GUI added October 6, 2026. Configured literal terms and masked log excerpts added October 7, 2026. Conditional Git design remains unimplemented.
+**Status:** Private scanner/static demo implemented October 5, 2026; local GUI added October 6, 2026. Configured literal terms, masked log excerpts and manual opaque image copies added October 7, 2026. Conditional Git design remains unimplemented.
 
 The current proposal is an explicit local file checker using fictional development fixtures. Git integration is a conditional later route. This replaces the earlier mandatory full Git gate architecture; its prior detail remains in Git history. Stack choices are provisional until measured.
+
+## Alpha preparation — October 18, 2026
+
+These steps precede independent Mac packaging. The repository remains private until the final publication action is explicitly confirmed; no public release or registry publication is claimed. Current validation is recorded in [docs/VALIDATION.md](docs/VALIDATION.md); release preparation and outstanding gates are tracked in [docs/ALPHA_RELEASE.md](docs/ALPHA_RELEASE.md). Historical dates below describe earlier scope and do not override this update.
 
 ## 1. Minimal stack
 
@@ -81,7 +85,7 @@ Use subprocess argument arrays and timeouts. Pillow validates and normalizes ima
 
 Mask matched values in every normal/error message. Disable Rich markup interpretation for untrusted strings and sanitize terminal control characters. Do not forward decoder/OCR stderr verbatim. Filenames can disclose context even after escaping; keep output local and tell users to review reports before sharing them.
 
-There is no redaction guarantee. Coordinates identify where to inspect; users edit originals with existing tools and rerun the scan. No automatic commit/history changes.
+There is no redaction guarantee. Coordinates identify where to inspect; the GUI can manually cover chosen regions in a new PNG and recheck it, while users edit logs with existing tools and rerun the scan. No automatic commit/history changes.
 
 ### Explicit preview storage
 
@@ -107,9 +111,21 @@ File selection submits a bounded binary frame: four-byte metadata length, at mos
 
 `scan_buffers` and `scan_files` share one orchestrator. A worker scans without blocking the UI; polling reports the current file/count, not a claimed precise overall percentage. `preview.render_cards` supplies escaped masked results and normalized visible-image regions. Only masked finding-line excerpts may enter result HTML, never raw logs/OCR transcripts. Failed inspection takes precedence in summaries. No-readable-text remains manual review, not a finding or privacy pass.
 
-Raw snapshots remain in worker memory and are released after processing. The session keeps only the latest masked card HTML (including masked log excerpts and explicitly selected visible image pixels), cleared on replacement, Clear results, End session, process exit or 30 minutes without requests. There is no artifact spool, database or report file. Browser/OS persistence is outside the promise; a same-user malicious process or browser extension is not prevented. A browser File is a selected snapshot: edits require re-selection. Settings/selection changes mark prior results stale. The existing static-preview disk lifecycle is separate.
+Raw snapshots remain in worker memory and are released after processing. The session keeps the latest masked card HTML (including masked log excerpts and explicitly selected visible image pixels), normalized image sources and the original policy for manual copies, plus exact exported PNG bytes when a copy was created, cleared on replacement, Clear results, End session, process exit or 30 minutes without requests. There is no artifact spool, database or report file. Browser/OS persistence is outside the promise; a same-user malicious process or browser extension is not prevented. A browser File is a selected snapshot: edits require re-selection. Settings/selection changes mark prior results stale. The existing static-preview disk lifecycle is separate.
 
 `AgentSafe.app` is a small native Mac development launcher, built by `scripts/build_macos_launcher.py` from `macos_launcher.m` using existing Apple clang/AppKit. The ignored native binary contains paths to an owned private OS-temp runtime snapshot and the existing base Python. The build copies current package code and installed environment dependencies, never scan inputs. It starts Python with `-S` and that snapshot on PYTHONPATH, without shell evaluation, Desktop checkout access or automatic installation/downloads. Rebuild after source/dependency changes or temp-runtime removal. It opens the default browser in Chinese. This unsigned development setup still depends on the existing base Python/Tesseract; it is not a distributable standalone app. Signed/notarized runtime/OCR bundles and Windows/Linux launchers require separate launch validation.
+
+### Manual PNG copy boundary
+
+`redaction.py` accepts only a normalized in-memory PNG from the latest completed scan and 1–100 integer rectangles within its dimensions. `POST /api/redact` requires the session token, a current random `review_id`, an integer image index and bounded JSON (64 KiB); it has no filesystem path or URL input. Stale reviews, log indices, malformed rectangles and busy sessions are rejected. The reservation covers generation and rescan.
+
+The editor selects boxes with a clamped 4 px margin or arbitrary user rectangles. SVG screen-transform inversion preserves source-pixel coordinates when the display scales/letterboxes; previews are overlays, not the exported file. The server creates a fresh RGB image, fills inclusive integer pixel regions with opaque `(23, 63, 57)`, omits source metadata and bounds the output to 10 MiB / 20 MP. Originals are never reopened or written. The exact new PNG bytes go to `scan_buffers` with the retained original policy. The one-image result exposes a data URL and new `*-redacted.png` download name for those same bytes. Download is an explicit browser action, not a server spool. Failed coverage remains visible; no readable text is not a pass. PNG output can still contain unknown private content outside the chosen areas.
+
+Latest image/policy/export state is released on new scans, clear, end, idle expiry or process exit; user downloads have their own lifecycle. No pixel selection/policy is stored in browser storage. A same-session stale page cannot silently edit a newer scan. Static previews and logs remain read-only.
+
+### Browser identity assets
+
+The local asset allowlist includes `/brand`, three original SVG icons, 32/180 px PNGs and multi-size ICOs, including `/favicon.ico` fallback. `scripts/build_icons.py` creates the geometric designs without remote assets/fonts; package data includes the icon subdirectory. The comparison page switches only its own favicon and uses no stored preference or artifact input. The app uses the A monogram (01) in its header and favicon links; `/favicon.ico` serves that same design. CSP allows same-origin icon images plus existing PNG data URLs, not external image resources.
 
 ## 6. Proposed repository structure
 
@@ -135,6 +151,7 @@ agentsafe/
 │   ├── extract.py                 # Text and local OCR
 │   ├── rules.py                   # Small evidence rules
 │   ├── text_preview.py            # Masked finding-line excerpts
+│   ├── redaction.py               # Bounded opaque PNG copies, no paths
 │   ├── scan.py                    # Coverage and per-invocation orchestration
 │   ├── models.py                  # Input, evidence, coverage, result
 │   ├── config.py                  # Explicit sensitivity configuration

@@ -1,9 +1,11 @@
 """Session-only browser UI on an authenticated IPv4 loopback server.
 
 The GUI accepts explicit file bytes, never paths or URLs. No artifacts are
-written to disk, no filesystem is served and no external requests are made.
+written to disk by the server; explicitly saved PNG copies are browser downloads.
+No filesystem is served and no external requests are made.
 """
 
+import base64
 import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
@@ -20,18 +22,28 @@ from .models import Limits, ScanError
 from .output import safe_path
 from .preview import no_readable_text, render_cards
 from .scan import scan_buffers
+from .redaction import copy_name, redact_png
 
 UPLOAD_BYTES = 24 * 1024 * 1024
 HEADER_BYTES = 64 * 1024
 IDLE_SECONDS = 30 * 60
-CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 ASSETS = {
     "/": ("gui.html", "text/html; charset=utf-8"),
     "/gui.js": ("gui.js", "text/javascript; charset=utf-8"),
     "/gui.css": ("gui.css", "text/css; charset=utf-8"),
     "/preview.js": ("preview.js", "text/javascript; charset=utf-8"),
     "/preview.css": ("preview.css", "text/css; charset=utf-8"),
+    "/redaction.js": ("redaction.js", "text/javascript; charset=utf-8"),
+    "/redaction.css": ("redaction.css", "text/css; charset=utf-8"),
+    "/brand": ("brand.html", "text/html; charset=utf-8"),
+    "/brand.js": ("brand.js", "text/javascript; charset=utf-8"),
+    "/brand.css": ("brand.css", "text/css; charset=utf-8"),
+    "/favicon.ico": ("icons/monogram.ico", "image/x-icon"),
 }
+for _variant in ("monogram", "frame", "document"):
+    for _suffix, _type in ((".svg", "image/svg+xml"), ("-32.png", "image/png"), ("-180.png", "image/png"), (".ico", "image/x-icon")):
+        ASSETS[f"/icons/{_variant}{_suffix}"] = (f"icons/{_variant}{_suffix}", _type)
 
 
 def decode_upload(body: bytes) -> tuple[list[tuple[str, bytes]], Policy, str]:
@@ -75,6 +87,9 @@ class Session:
         self.reserved = False
         self.closed = False
         self.job = None
+        self.review_images = {}
+        self.review_policy = None
+        self.review_lang = "en"
         self.last_activity = time.monotonic()
         self.ocr = {"ready": False, "pending": True, "message": "OCR health check has not completed."}
 
@@ -97,12 +112,18 @@ class Session:
         with self.lock:
             self.reserved = False
 
-    def start(self, inputs, policy, lang, *, synthetic=False):
+    def start(self, inputs, policy, lang, *, synthetic=False, export=None):
         with self.lock:
-            self.job = {"state": "running", "current": 0, "total": len(inputs), "name": "", "synthetic": synthetic}
-        threading.Thread(target=self._scan, args=(inputs, policy, lang), daemon=True).start()
+            if self.closed:
+                inputs.clear()
+                return
+            self.job = {"state": "running", "current": 0, "total": len(inputs), "name": "", "synthetic": synthetic, "redacted": export is not None}
+            self.review_images = {}
+            self.review_policy = None
+        threading.Thread(target=self._scan, args=(inputs, policy, lang, export), daemon=True).start()
 
-    def _scan(self, inputs, policy, lang):
+    def _scan(self, inputs, policy, lang, export):
+        images = {}
         def progress(current, total, name):
             with self.lock:
                 if self.job is not None and not self.closed:
@@ -118,7 +139,9 @@ class Session:
                 "exit_code": report.exit_code,
                 "policy_counts": {"domains": report.domain_count, "cookies": report.cookie_count, "terms": report.term_count},
                 "cards": render_cards(report, lang=lang),
+                "review_id": secrets.token_urlsafe(16),
             }
+            images = {i: (item.path, item.preview_png) for i, item in enumerate(report.files) if item.preview_png is not None and item.coverage == "inspected"}
         except Exception:
             result = {"state": "error", "message": "Scan could not complete. No privacy decision was made; reselect files and try again."}
         finally:
@@ -128,8 +151,30 @@ class Session:
         with self.lock:
             if not self.closed:
                 result["synthetic"] = self.job["synthetic"]
+                result["redacted"] = self.job["redacted"]
+                if export is not None:
+                    # These are exactly the new bytes sent to scan_buffers, not
+                    # the subsequent normalized review image or an overlay.
+                    name, data = export
+                    result["export"] = {"name": name, "url": "data:image/png;base64," + base64.b64encode(data).decode("ascii")}
                 self.job = result
+                self.review_images = images
+                self.review_policy = policy if images else None
+                self.review_lang = lang
             self.reserved = False
+
+    def prepare_redaction(self, metadata):
+        if not isinstance(metadata, dict) or set(metadata) != {"review_id", "image_index", "regions"} or type(metadata["image_index"]) is not int:
+            raise ScanError("The image selection is invalid; no copy was created.")
+        with self.lock:
+            if not self.job or self.job["state"] != "done" or metadata["review_id"] != self.job.get("review_id"):
+                raise ScanError("The review changed; open the current image to create a copy.")
+            image = self.review_images.get(metadata["image_index"])
+            policy, lang, synthetic = self.review_policy, self.review_lang, self.job["synthetic"]
+        if image is None or policy is None:
+            raise ScanError("This image is unavailable for editing; no copy was created.")
+        name, source = image
+        return (copy_name(name), redact_png(source, metadata["regions"])), policy, lang, synthetic
 
     def status(self):
         with self.lock:
@@ -140,12 +185,16 @@ class Session:
             if self.reserved:
                 return False
             self.job = None
+            self.review_images = {}
+            self.review_policy = None
             return True
 
     def close(self):
         with self.lock:
             self.closed = True
             self.job = None
+            self.review_images = {}
+            self.review_policy = None
             self.token = ""
 
 
@@ -225,7 +274,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path in ASSETS:
             name, kind = ASSETS[self.path]
             content = files("agentsafe").joinpath("ui", name).read_bytes()
-            if name == "gui.html":
+            if name.endswith(".html"):
                 content = content.replace(b'lang="en"', f'lang="{self.server.lang}"'.encode(), 1)
             self.respond(200, content, kind)
         elif self.path == "/api/info":
@@ -246,13 +295,28 @@ class Handler(BaseHTTPRequestHandler):
             self.respond(200, {"state": "stopped"})
             session.close()
             return
-        if self.path not in {"/api/scan", "/api/demo/before", "/api/demo/after", "/api/demo/miss", "/api/demo/terms"}:
+        if self.path not in {"/api/scan", "/api/redact", "/api/demo/before", "/api/demo/after", "/api/demo/miss", "/api/demo/terms"}:
             self.respond(404, {"message": "Resource not found."})
             return
         if not session.reserve():
             self.respond(409, {"message": "Wait for the current scan to finish."})
             return
         try:
+            if self.path == "/api/redact":
+                sizes = self.headers.get_all("Content-Length", [])
+                if len(sizes) != 1 or not sizes[0].isdigit() or not 1 <= int(sizes[0]) <= HEADER_BYTES or self.headers.get("Transfer-Encoding") or self.headers.get("Content-Type") != "application/json":
+                    raise ScanError("A bounded image selection is required; no copy was created.")
+                body = self.rfile.read(int(sizes[0]))
+                if len(body) != int(sizes[0]):
+                    raise ScanError("The image selection is incomplete; no copy was created.")
+                try:
+                    metadata = json.loads(body)
+                except (ValueError, UnicodeError):
+                    raise ScanError("The image selection is invalid; no copy was created.") from None
+                export, policy, lang, synthetic = session.prepare_redaction(metadata)
+                session.start([export], policy, lang, synthetic=synthetic, export=export)
+                self.respond(202, {"state": "running"})
+                return
             if self.path == "/api/scan":
                 sizes = self.headers.get_all("Content-Length", [])
                 if len(sizes) != 1 or not sizes[0].isdigit() or self.headers.get("Transfer-Encoding"):

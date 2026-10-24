@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security reporting instructions
+    url: https://github.com/Minjia-Hu/agentsafe/blob/main/SECURITY.md
+    about: Check the private reporting instructions before disclosing a vulnerability.

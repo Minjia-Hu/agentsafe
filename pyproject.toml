@@ -1,13 +1,16 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentsafe-local-demo"
-version = "0.0.1.dev0"
-description = "Private experimental local checks for screenshots and debugging logs"
+version = "0.1.0a1"
+description = "Local privacy checks and manual image redaction for development artifacts"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Topic :: Security"]
 dependencies = [
   "Pillow>=11,<13",
   "rich>=13,<15",
@@ -17,6 +20,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
 
+[project.urls]
+Repository = "https://github.com/Minjia-Hu/agentsafe"
+Issues = "https://github.com/Minjia-Hu/agentsafe/issues"
+
 [project.scripts]
 agentsafe = "agentsafe.cli:main"
 
@@ -24,7 +31,7 @@ agentsafe = "agentsafe.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-agentsafe = ["demo_assets/*", "ui/*.css", "ui/*.js", "ui/*.html"]
+agentsafe = ["demo_assets/*", "ui/*.css", "ui/*.js", "ui/*.html", "ui/icons/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

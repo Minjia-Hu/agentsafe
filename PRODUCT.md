@@ -1,13 +1,18 @@
 # AgentSafe — Product Definition
 
-**Status:** Private scanner/static demo implemented October 5, 2026; GUI implemented October 6, 2026; configured sensitive terms and masked log preview added October 7, 2026. Public launch and Git integration are not authorized.
+**Status:** Private scanner/static demo implemented October 5, 2026; GUI implemented October 6, 2026; configured sensitive terms, masked log preview and manual PNG copy/recheck added October 7, 2026. Public launch and Git integration are not authorized.
 **Research date:** October 5, 2026; retained research below has not been re-evaluated in this revision.
 **Working name:** AgentSafe; naming clearance is unresolved.
 
 <a id="second-pass-review--october-5-2026"></a>
+
+## Alpha preparation — October 18, 2026
+
+These steps precede independent Mac packaging. The repository remains private until the final publication action is explicitly confirmed; no public release or registry publication is claimed. Current validation is recorded in [docs/VALIDATION.md](docs/VALIDATION.md); release preparation and outstanding gates are tracked in [docs/ALPHA_RELEASE.md](docs/ALPHA_RELEASE.md). Historical dates below describe earlier scope and do not override this update.
+
 ## Current product experience — October 6, 2026
 
-The local browser app is the primary interactive entry: select screenshots/logs, optionally enter sensitive words/phrases, internal domains and session-cookie names, start a scan, review image regions/masked text findings, edit originals with existing tools, reselect changed files and scan again. Bundled fictional cases let a new user try it without private material.
+The local browser app is the primary interactive entry: select screenshots/logs, optionally enter sensitive words/phrases, internal domains and session-cookie names, start a scan, review image regions/masked text findings, manually cover screenshot regions into a new PNG, recheck/save that copy, or edit logs with existing tools, reselect changed files and scan again. Bundled fictional cases let a new user try it without private material.
 
 This adds an operating interface to the previous static result viewer. It does not broaden detection formats, add automatic redaction or intercept publishing. The existing Python/OCR/rule core processes explicitly selected snapshots. Browser-to-process communication uses an authenticated loopback-only server; no external artifact transfer is involved.
 
@@ -21,13 +26,19 @@ Match literal text within one extracted line, case-insensitively, with flexible 
 
 A fourth GUI sample, **Customer / project names**, checks fictional Project Cedar / Acme Training in an English screenshot and a log with a Chinese fictional customer name. It runs the same scanner, not hard-coded findings. Static CLI `demo` retains its original three groups.
 
-Manual region redaction/export and independent installation are proposed later milestones for the GUI workflow; this iteration implements neither. Unknown business content can still pass all supported rules. Do not promise a complete privacy firewall or infer real-world accuracy from these synthetic cases.
+The subsequent manual image-copy workflow was approved and implemented as described below. Independent installation remains a proposed later milestone. Unknown business content can still pass all supported rules. Do not promise a complete privacy firewall or infer real-world accuracy from these synthetic cases.
 
 ## Masked log review — October 7, 2026
 
 The GUI and explicit CLI previews now show only lines containing findings, with original line numbers, field names and bounded context. Authentication/cookie values and detected phrases/domains/emails become `[HIDDEN]` (Chinese UI: `[隐藏]`). Click a finding to highlight and focus its line; multiple findings on the same line share that line.
 
 Unrelated lines and long gaps are omitted. No findings means no log excerpt, not permission to publish. Excerpts may retain sensitive content outside the declared rules and must stay private. This is a read-only review aid: no raw-log reveal, automatic sanitized export or change to the original. Normal terminal scans still output reasons/locations only; severity and exit meanings are unchanged.
+
+## Manual image copies and browser identity — October 7, 2026
+
+The GUI lets the user select a detected box (with a 4 px margin), drag an arbitrary rectangle or enter coordinates, then undo/reset. No regions are selected automatically. Create and recheck one new RGB PNG with opaque pixel replacement and the original scan's policy; Save downloads the exact newly inspected bytes. Original files are unchanged. The new result explicitly covers only that image, not other previously selected files. Remaining findings, no-readable-text and failed coverage remain visible; never call the copy safe. A saved copy has no source metadata but can still contain private visible content outside chosen regions. Logs and static CLI previews have no export/editor.
+
+The A monogram (01) is the default header and browser favicon. Packaged SVG/PNG/ICO assets also retain the review-frame and folded-artifact alternatives. A local comparison page provides small-size/context previews and per-tab favicon switching; previewing another study does not change the app's default. Public naming clearance, installation, new formats, automatic redaction, publication and Git protection remain deferred.
 
 ## Current proposal: a synthetic-data experiment
 
@@ -137,7 +148,7 @@ The proposed demo covers a **manual check of explicit local files**:
 1. The user selects supported files in the GUI or supplies explicit CLI paths before sharing.
 2. The scanner reads a bounded snapshot of each file locally.
 3. It reports evidence, location, extraction uncertainty and coverage.
-4. The user reviews or edits the original and reruns the check before sharing.
+4. The user reviews the artifact, creates/rechecks a manually covered image copy or edits/reselects a log, and decides what to share.
 
 There is no enforcement at the upload boundary. Changes after scanning invalidate the relevance of that scan; a filename is not an approval of later bytes. The scanner does not know the destination or whether a file will be published.
 
@@ -159,6 +170,7 @@ If a Git gate is later selected, it must inspect all relevant outgoing versions,
 - Small optional TOML configuration for sensitive domains, words/phrases and session-cookie names. Show when none are configured; do not pretend to infer organization-specific sensitivity.
 - `scan`, `doctor` and a bundled one-command `demo`; opt-in `scan --preview` image-region review, masked terminal output and defined exit codes.
 - Fictional positive, benign and failure fixtures; a documented manual review/edit/rescan workflow.
+- GUI-only manual image covering, new opaque PNG, original-policy recheck and explicit download; originals unchanged.
 
 ### Policy hypothesis
 
@@ -240,6 +252,6 @@ The default release candidate is a reliable standalone local checker with tested
 
 A Git-focused v0.1 is a separate conditional route: add staged preview, outgoing-history scanning, real destination visibility, a repository-local pre-push hook and a narrowly justified exception lifecycle only after relevant workflow evidence and scope approval. UNKNOWN visibility must not silently become PRIVATE. Selective strong-evidence blocking remains the recommendation; blanket image approval is not the default. Do not add both routes' integrations merely for launch breadth.
 
-No real business material, recruited users, public repository, finalized name or license is required to start that private experiment. Public sharing, package distribution and changing repository visibility remain separate actions requiring authorization. MIT remains a license proposal, not a grant.
+No real business material, recruited users, public repository, finalized name or license is required to start that private experiment. Public sharing, package distribution and changing repository visibility remain separate actions requiring authorization. The project now includes the MIT license; see LICENSE.
 
 See ROADMAP.md for phases and ARCHITECTURE.md for technical boundaries. Initial synthetic results are recorded; general accuracy, independent adoption and market demand remain unvalidated.

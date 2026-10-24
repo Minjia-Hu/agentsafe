@@ -9,7 +9,7 @@
 ## 产品约束
 
 - 实现前阅读 [PRODUCT.zh-CN.md](PRODUCT.zh-CN.md) 和 [ARCHITECTURE.zh-CN.md](ARCHITECTURE.zh-CN.md)，以对应英文原文为正式文档。[ROADMAP.zh-CN.md](ROADMAP.zh-CN.md) 区分 demo、候选发布与后续学习，不授权扩大范围。
-- 私有实验包括本地 GUI 与共用 CLI：指定 PNG/JPEG 和 UTF-8 日志/文本扫描、本地 OCR、少量配置/结构规则（包括字面敏感词）、隐藏敏感值的定位、scan、doctor、附带样本 demo 和本地图片定位审阅。不包含 staged 扫描、可见性查询、hook、持久批准、ignore 或打码。
+- 私有实验包括本地 GUI 与共用 CLI：指定 PNG/JPEG 和 UTF-8 日志/文本扫描、本地 OCR、少量配置/结构规则（包括字面敏感词）、隐藏敏感值的定位、scan、doctor、附带样本 demo 和本地图片定位审阅。获批的 GUI 扩展增加手动不透明图片打码、新 PNG 副本重检及显式下载。不包含 staged 扫描、可见性查询、hook、持久批准或 ignore。
 - 获批的技术实验不要求真实私密材料或用户招募。创建虚构阳性、正常和失败案例，不收集客户数据或有效凭证。
 - 目标用户与需求应描述为假设。虚构样本成功和开发者自测，不证明市场契合或真实准确率。
 - 面向配合工具的用户防止意外分享，不宣称对抗性 agent 强制控制或通用 DLP。未明确提供时，AI 来源未知。

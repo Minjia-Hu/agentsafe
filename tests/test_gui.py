@@ -2,18 +2,25 @@
 
 from http.client import HTTPConnection
 import json
+import base64
+import hashlib
+from importlib.resources import files
+from io import BytesIO
+import re
 import socket
 import struct
 import threading
 import time
 
 import pytest
+from PIL import Image
 
 from agentsafe.config import Policy
 from agentsafe.extract import check_ocr
 from agentsafe.gui import LocalServer, UPLOAD_BYTES, decode_upload
 from agentsafe.models import Limits, ScanError
 from agentsafe.scan import scan_buffers
+from agentsafe.redaction import FILL
 
 ORIGINAL_CONNECT = socket.socket.connect
 
@@ -247,3 +254,105 @@ def test_business_sample_checks_names_without_domains(local_gui):
     assert result["high"] == 5 and result["warn"] == result["incomplete"] == 0
     assert result["policy_counts"] == {"terms": 3, "domains": 0, "cookies": 0}
     assert 'data-target=' in result["cards"] and "第 4 行" in result["cards"]
+
+
+def redact_request(server, result, regions, *, index=0, **kwargs):
+    body = json.dumps({"review_id": result["review_id"], "image_index": index, "regions": regions}).encode()
+    return request(server, "/api/redact", method="POST", data=body, extra={"Content-Type": "application/json"}, **kwargs)
+
+
+@pytest.mark.ocr
+def test_gui_manual_copy_rechecks_exact_bytes_with_original_policy(local_gui, monkeypatch):
+    try:
+        check_ocr()
+    except ScanError as error:
+        pytest.skip(str(error))
+    server = local_gui
+    source = files("agentsafe").joinpath("demo_assets", "business-context.png").read_bytes()
+    digest = hashlib.sha256(source).digest()
+    assert request(server, "/api/demo/terms", method="POST")[0] == 202
+    original = finished(server)
+    # Keep one configured phrase visible, proving context is reused rather than
+    # cleared when the user never entered any settings in the form.
+    boxes = re.findall(r'<rect[^>]* x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)"', original["cards"])
+    assert len(boxes) == 2
+    x, y, w, h = map(int, boxes[0])
+    region = {"x": x-4, "y": y-4, "w": w+8, "h": h+8}
+    seen = []
+    core = scan_buffers
+    def recording(inputs, policy, **kwargs):
+        seen.extend((name, data, policy) for name, data in inputs)
+        return core(inputs, policy, **kwargs)
+    monkeypatch.setattr("agentsafe.gui.scan_buffers", recording)
+    assert redact_request(server, original, [region])[0] == 202
+    result = finished(server)
+    assert result["redacted"] and result["total"] == 1 and result["incomplete"] == 0
+    assert result["high"] == 1 and result["policy_counts"] == original["policy_counts"]
+    exported = base64.b64decode(result["export"]["url"].split(",", 1)[1])
+    assert seen[0][0] == result["export"]["name"] == "business-context-redacted.png"
+    assert seen[0][1] == exported and seen[0][2].sensitive_terms == ("Project Cedar", "Acme Training", "华星演示客户")
+    assert hashlib.sha256(source).digest() == digest
+    with Image.open(BytesIO(exported)) as image:
+        assert image.mode == "RGB"
+        for px in range(x, x+w):
+            for py in range(y, y+h):
+                assert image.getpixel((px, py)) == FILL
+    assert redact_request(server, original, [region])[0] == 400
+    assert request(server, "/api/clear", method="POST")[0] == 200
+    assert server.session.review_images == {} and server.session.review_policy is None
+    assert server.session.status() == {"state": "idle"}
+
+
+@pytest.mark.ocr
+def test_redaction_auth_validation_and_missing_ocr_are_honest(local_gui, monkeypatch):
+    try:
+        check_ocr()
+    except ScanError as error:
+        pytest.skip(str(error))
+    server = local_gui
+    assert request(server, "/api/demo/before", method="POST")[0] == 202
+    original = finished(server)
+    region = {"x": 10, "y": 10, "w": 30, "h": 20}
+    assert redact_request(server, original, [region], auth=False)[0] == 401
+    assert redact_request(server, original, [region], origin="https://outside.test")[0] == 403
+    assert redact_request(server, original, [region], index=1)[0] == 400  # log, not image
+    assert redact_request(server, original, [dict(region, x=True)])[0] == 400
+    assert redact_request(server, original, [dict(region, w=100000)])[0] == 400
+    assert request(server, "/api/redact", method="POST", data=b"not JSON", extra={"Content-Type": "application/json"})[0] == 400
+    assert request(server, "/api/redact", method="POST", data=b"{}", extra={"Content-Type": "application/json", "Content-Length": "65537"})[0] == 400
+    assert server.session.status()["review_id"] == original["review_id"]
+    def unavailable():
+        raise ScanError("Tesseract was not found; reopen the scanner after installation.")
+    monkeypatch.setattr("agentsafe.extract.tesseract_command", unavailable)
+    assert redact_request(server, original, [region])[0] == 202
+    result = finished(server)
+    assert result["exit_code"] == 2 and result["incomplete"] == 1 and result["export"]
+    assert server.session.review_images == {}  # Failed scan cannot be edited as if inspected.
+    server.session.close()
+    assert server.session.review_policy is None and server.session.job is None
+
+
+def test_closed_session_never_retains_new_inputs(local_gui):
+    server = local_gui
+    server.session.close()
+    inputs = [("private.txt", b"SYNTHETIC_TRANSIENT_CANARY")]
+    server.session.start(inputs, Policy(), "en")
+    assert not inputs and server.session.job is None and not server.session.review_images
+
+
+def test_browser_logo_assets_are_packaged_and_local(local_gui):
+    server = local_gui
+    assert request(server, "/brand", auth=False)[0] == 200
+    for variant in ("monogram", "frame", "document"):
+        code, headers, svg = request(server, f"/icons/{variant}.svg", auth=False)
+        assert code == 200 and headers["Content-Type"] == "image/svg+xml"
+        assert b"<svg" in svg and b"href=" not in svg
+        code, headers, png = request(server, f"/icons/{variant}-32.png", auth=False)
+        assert code == 200 and headers["Content-Type"] == "image/png"
+        with Image.open(BytesIO(png)) as icon:
+            assert icon.size == (32, 32)
+        code, headers, ico = request(server, f"/icons/{variant}.ico", auth=False)
+        assert code == 200 and headers["Content-Type"] == "image/x-icon"
+        with Image.open(BytesIO(ico)) as icon:
+            assert icon.info["sizes"] == {(16, 16), (32, 32), (48, 48)}
+    assert request(server, "/icons/../../README.md")[0] == 404

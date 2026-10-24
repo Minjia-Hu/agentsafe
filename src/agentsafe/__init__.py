@@ -1,3 +1,3 @@
-"""Local artifact-check experiment. No runtime network operations."""
+"""Local artifact privacy checks with an explicit loopback GUI."""
 
-__version__ = "0.0.1.dev0"
+__version__ = "0.1.0a1"

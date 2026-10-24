@@ -4,16 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AgentSafe · Local check</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/monogram.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/monogram-32.png">
+  <link rel="shortcut icon" href="/icons/monogram.ico">
   <link rel="stylesheet" href="/preview.css">
   <link rel="stylesheet" href="/gui.css">
+  <link rel="stylesheet" href="/redaction.css">
   <script defer src="/preview.js"></script>
+  <script defer src="/redaction.js"></script>
   <script defer src="/gui.js"></script>
 </head>
 <body>
 <div class="shell app-shell">
   <header class="masthead">
-    <div class="brand"><span class="brand-mark">A</span>AgentSafe<span class="edition">LOCAL CHECK / 02</span></div>
-    <div class="header-actions"><span class="local"><i></i><span data-copy="local">On this device</span></span><button class="subtle" id="stop" data-copy="stop">End session</button></div>
+    <div class="brand"><img src="/icons/monogram.svg" width="42" height="42" alt="">AgentSafe<span class="edition">LOCAL CHECK / 02</span></div>
+    <div class="header-actions"><a href="/brand" class="subtle" data-copy="logos">Logo studies</a><span class="local"><i></i><span data-copy="local">On this device</span></span><button class="subtle" id="stop" data-copy="stop">End session</button></div>
   </header>
   <main>
     <div class="app-intro"><div><span class="eyebrow" data-copy="eyebrow">A MOMENT BEFORE YOU SHARE</span><h1 data-copy="title">A little context can travel too far.</h1><p data-copy="intro">Check screenshots and debugging logs locally. Locate what needs review, then decide what to share.</p></div><span class="intro-index">01—03</span></div>
@@ -55,6 +60,7 @@
       <div class="notice error-notice" id="scan-error" role="alert" hidden></div>
       <div id="result-summary" class="result-summary" role="status" hidden></div>
       <p id="result-context" class="result-context" hidden></p>
+      <section id="copy-output" class="copy-output" hidden><div><strong data-redaction="copyTitle">A new PNG copy</strong><p data-redaction="copyHint">This download contains the exact pixels just checked. Review it manually before sharing; the original is unchanged.</p><span id="copy-name"></span></div><a id="copy-download" class="button primary" data-redaction="save">Save PNG copy ↗</a></section>
       <div id="cards"></div>
       <p class="review-boundary" id="review-boundary" data-copy="boundary" hidden>Image markings locate evidence; they do not redact it. Review or edit the originals in your usual tools, then choose the updated files and scan again.</p>
     </section>
@@ -62,5 +68,12 @@
   </main>
   <footer><strong>AgentSafe</strong><p data-copy="footer">Private development preview · OCR currently reads English text. No automatic redaction or upload protection. A scan cannot certify privacy. Session settings and results are not saved by AgentSafe.</p></footer>
 </div>
+<dialog id="redaction-dialog" aria-labelledby="redaction-heading">
+  <div class="redaction-heading"><div><span class="eyebrow">MANUAL COVER / 04</span><h2 id="redaction-heading" data-redaction="title">Cover what you choose.</h2><p id="redaction-name"></p></div><button type="button" class="subtle" id="redaction-cancel" data-redaction="cancel">Cancel</button></div>
+  <p class="redaction-intro" data-redaction="intro">Choose a detected region, or drag on the image to cover anything else. Solid blocks replace pixels in a new copy; the original is unchanged.</p>
+  <div class="redaction-workspace"><div class="redaction-canvas-wrap"><svg id="redaction-stage" role="img" aria-label="Manual image cover preview"></svg><p class="redaction-preview-note" data-redaction="previewNote">Cover preview only. Create and check the PNG copy before saving.</p></div><aside class="redaction-tools"><h3 data-redaction="detected">Detected regions</h3><div id="redaction-regions"></div><details class="redaction-coordinates"><summary data-redaction="coordinates">Or enter a rectangle in pixels</summary><div class="coordinate-fields"><label>X<input type="number" id="cover-x" value="0" min="0" step="1"></label><label>Y<input type="number" id="cover-y" value="0" min="0" step="1"></label><label>W<input type="number" id="cover-w" value="100" min="1" step="1"></label><label>H<input type="number" id="cover-h" value="30" min="1" step="1"></label></div><button type="button" class="text-button" id="cover-add" data-redaction="add">Add rectangle +</button></details><div class="redaction-history"><button type="button" class="text-button" id="cover-undo" data-redaction="undo">Undo last</button><button type="button" class="text-button" id="cover-reset" data-redaction="reset">Clear covers</button></div><p id="cover-count" role="status"></p><p class="redaction-limit" data-redaction="limit">Check the whole image: detectors can miss content. Detected boxes include a 4 px margin; you can add more coverage yourself.</p></aside></div>
+  <p id="redaction-error" class="notice" role="alert" hidden></p>
+  <div class="redaction-footer"><p data-redaction="policy">Recheck uses the original scan settings, including a sample's settings. No upload or privacy guarantee.</p><button type="button" class="button primary" id="cover-check" disabled data-redaction="check">Create & check PNG copy →</button></div>
+</dialog>
 </body>
 </html>

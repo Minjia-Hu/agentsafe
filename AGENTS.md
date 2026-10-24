@@ -7,7 +7,7 @@ Read the product and architecture documents before changing behavior. Preserve e
 ## Product constraints
 
 - Read PRODUCT.md and ARCHITECTURE.md before implementation. ROADMAP.md separates the demo, candidate launch and later learning; it does not authorize scope expansion.
-- The private experiment includes a local GUI and shared CLI: explicit PNG/JPEG and UTF-8 log/text scanning, local OCR, small configured/structural rules including literal sensitive terms, masked locations, scan, doctor, bundled demo and local image-region review. No staged scanning, visibility lookup, hooks, persistent approvals, ignores or redaction.
+- The private experiment includes a local GUI and shared CLI: explicit PNG/JPEG and UTF-8 log/text scanning, local OCR, small configured/structural rules including literal sensitive terms, masked locations, scan, doctor, bundled demo and local image-region review. The approved GUI extension adds manual opaque image redaction into a new PNG copy, recheck and explicit download. No staged scanning, visibility lookup, hooks, persistent approvals or ignores.
 - No real private materials or user recruitment is required to begin an approved technical experiment. Create fictional positive, benign and failure cases; do not collect customer data or valid credentials.
 - Describe target users and demand as hypotheses. Synthetic success and developer self-testing do not establish market fit or real-world accuracy.
 - The target is accidental sharing by cooperative users, not adversarial agent enforcement or universal DLP. AI authorship is unknown unless explicitly supplied.

@@ -1,8 +1,12 @@
 # AgentSafe — Roadmap
 
-**Status:** Private scanner/static viewer complete; GUI workflow implemented October 6, 2026 for local review. Configured business terms and masked log preview added October 7, 2026. Integration/publication remains conditional.
+**Status:** Private scanner/static viewer complete; GUI workflow implemented October 6, 2026 for local review. Configured business terms, masked log preview and manual image copies added October 7, 2026. Integration/publication remains conditional.
 
 This roadmap uses fictional development fixtures. Product demand and the appropriate publishing channel remain unknown. PRODUCT.md is the current scope; the earlier full Git gate is a conditional route, not a demo prerequisite.
+
+## Alpha preparation — October 18, 2026
+
+These steps precede independent Mac packaging. The repository remains private until the final publication action is explicitly confirmed; no public release or registry publication is claimed. Current validation is recorded in [docs/VALIDATION.md](docs/VALIDATION.md); release preparation and outstanding gates are tracked in [docs/ALPHA_RELEASE.md](docs/ALPHA_RELEASE.md). Historical dates below describe earlier scope and do not override this update.
 
 ## Phase 1 — Private technical demo
 
@@ -36,11 +40,19 @@ Before v0.1 launch, choose/package the runtime and OCR, test first-run setup on 
 
 Implemented in the shared GUI/CLI core, with clearer automatic-versus-optional checks, masked phrase locations, strict configuration/finding limits and a fourth fictional GUI business sample. Acceptance: try the sample without domains; select the same files with supplied terms, inspect image boxes/log lines, change the terms and rescan. Chinese text is demonstrated only in logs; no image OCR language expansion. Validation is recorded in README, broader usability review pending.
 
-Next sequence: complete this context review, then prioritize independent installation and a designed manual image-region redaction / Save a copy / recheck workflow for a candidate v0.1. That export workflow is a proposed milestone, unimplemented in this batch; preserve originals and validate actual output bytes before promising redaction. Broad semantic detection, additional formats and Git automation remain later choices. Do not postpone all useful core improvements until post-launch, and do not turn this iteration into an unlimited scanner.
+Broad semantic detection, additional formats and Git automation remain later choices. Do not postpone all useful core improvements until post-launch, and do not turn this iteration into an unlimited scanner.
 
 ### masked log preview — October 7, 2026
 
 Implemented: bounded excerpts of finding lines, original numbers/field names, hidden detector/auth/cookie values and clickable line highlight/focus in the shared GUI/static renderer. Preserve originals, never expose raw logs or offer a sanitized export. Acceptance: try Before review, click its auth and cookie findings, verify corresponding masked lines; compare After review and the business-term sample. Privacy/location/coverage tests and browser evidence are recorded in README. This improves review, not detection scope or launch readiness.
+
+### manual PNG copies and favicon review — October 7, 2026
+
+Implemented: user-selected detected boxes/arbitrary rectangles, pixel coordinates, undo/reset, opaque PNG creation, same-policy rescan of exact new bytes, and explicit browser download. Originals stay unchanged; only that new image is covered by the new report. The API is authenticated, bounded and rejects stale scan IDs. Clear/end/replacement releases retained image/policy state. Logs and CLI previews remain read-only.
+
+Acceptance evidence: pixel-level export/preservation tests; real OCR retains original configured terms after a partial cover; missing OCR remains failed coverage; browser selection/coordinates/undo and two-region recheck produce a new one-image report and downloadable PNG.
+
+Next: complete Alpha source-installation and release preparation, then revisit independent Mac runtime/OCR packaging. No new format, cloud inference or Git integration is included.
 
 ### Scanner review gate
 
@@ -50,7 +62,7 @@ Implemented: bounded excerpts of finding lines, original numbers/field names, hi
 - Default and error output do not expose raw matched values; runtime scanning sends no input or extracted content to the network.
 - Users can understand what to inspect and what the result does not cover.
 
-Do not add staged scanning, Git visibility, hooks, persistent approvals, redaction or additional formats to rescue an unclear demo. If basic OCR/rules remain unhelpful, revise or stop within the small scope.
+Do not add staged scanning, Git visibility, hooks, persistent approvals, automatic redaction or additional formats to rescue an unclear demo. If basic OCR/rules remain unhelpful, revise or stop within the small scope.
 
 ### Evidence limit
 
@@ -95,11 +107,11 @@ Prioritize improvements supported by actual repeated use:
 1. Reduce unwanted warnings/HIGH decisions and improve setup, locations and failure explanations.
 2. If standalone API keys in screenshots are a demonstrated need, route extracted text to one mature local secret engine and validate masked output. Do not create a provider-rule catalog.
 3. Add one publishing integration only after documenting its real channel and limits. A Git hook does not cover API uploads, attachments, release assets or every agent-created repository.
-4. Evaluate the proposed manual export workflow before launch; after launch refine it from actual use. Verify resulting bytes and state that old Git versions remain unchanged. Automatic semantic redaction is not implied.
+4. Validate the implemented manual export workflow before launch; after launch refine it from actual use. Verify resulting bytes and state that old Git versions remain unchanged. Automatic semantic redaction is not implied.
 5. Add formats/languages/platforms one at a time with their own labeled cases and installation/resource measurements.
 
 No enterprise service, cloud inference or universal egress enforcement is committed. If actual use stays sporadic or users repeatedly bypass the workflow, simplify or stop rather than accumulating features.
 
 ## Current next action
 
-Try **Customer / project names** in the [interactive local GUI](README.md) using the Mac development launcher. Then select the bundled business files, enter the sample phrases and compare with empty settings. Complete sample → select/context → scan → review → reselect edited file → rescan, and record where first-time use is confusing. Then address usability and clean-machine packaging, before broader integration. No real materials or recruited users are required for this review. Synthetic success alone does not advance the project to public launch.
+Complete the approved Alpha preparation: validate source/wheel installation in an isolated environment, finish the public-facing documentation and license, review the repository/history, and sync the reviewed changes to the existing private remote. Record actual CI outcomes and remaining limits. The final visibility change and public prerelease are separate, explicit publication actions; independent installers and new detection features are not prerequisites.

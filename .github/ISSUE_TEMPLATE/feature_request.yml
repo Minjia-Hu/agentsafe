@@ -1,0 +1,17 @@
+name: Workflow feedback
+description: Describe a concrete sharing or review task AgentSafe could improve.
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: What were you trying to do?
+      description: Describe the workflow and where you would share the artifact, without private material.
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: Where did the current workflow fall short?
+      description: Explain what you do today and what improvement would help.
+    validations:
+      required: true
