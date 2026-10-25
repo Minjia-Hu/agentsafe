@@ -14,7 +14,7 @@ AgentSafe checks screenshots and debugging logs on your computer before you shar
 
 ![Actual interface: select fictional files, review detected names and masked log lines, manually cover two image regions, recheck and save a PNG copy](docs/images/review-workflow.gif)
 
-Real Alpha interface, fictional data. Edited sequence with waits shortened; covering is manual. The final check covers only the new image, not the log. [Still screenshots and walkthrough](docs/USAGE.md#first-check-no-private-files-needed).
+Real Alpha interface, fictional data. Continuous recording with pointer/click highlights; covering uses manual selection and dragging. The final check covers only the new image, not the log. [Still screenshots and walkthrough](docs/USAGE.md#first-check-no-private-files-needed).
 
 ## Try it
 
