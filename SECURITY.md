@@ -18,7 +18,7 @@ A useful private report contains the affected commit/version, OS and Python/OCR 
 - CLI scanning stays local. The GUI uses a short-lived authenticated IPv4 loopback server with bounded requests; it does not upload inputs externally. Normal dependency installation makes network requests separately.
 - Visible image previews and masked log excerpts may still contain private information outside supported rules. Keep reports and screenshots of the GUI private unless they contain only reviewed fictional data.
 - Manual image covering changes selected pixels in a new PNG. It does not erase original files, old Git versions, browser caches or other copies; unselected content may remain sensitive.
-- The GUI retains transient data until replacement, clear/end, exit or idle expiry. Static previews are explicit temporary files; downloaded PNGs remain until the user removes them. See the [README](README.md#local-processing-and-retained-data) for lifecycle details.
+- The GUI retains transient data until replacement, clear/end, exit or idle expiry. Static previews are explicit temporary files; downloaded PNGs remain until the user removes them. See the [user guide](docs/USAGE.md#local-processing-and-retained-data) for lifecycle details.
 - Git pushes, uploads, CI attachments, remote services and post-scan file changes are not intercepted. Native image/OCR processing is bounded but is not an OS resource sandbox.
 
 Do not upload real private artifacts in public bug reports. A missed supported rule with a fictional example can use the regular bug form; bypasses of the local service's access controls or unexpected data exposure should use private reporting.
