@@ -14,7 +14,7 @@
 - pip-audit 审查完整八项已解析运行依赖，未报告已知漏洞。CI 新增确切安装版本的依赖审查；Dependabot 每周提出 Python/Actions 更新。只查询公开依赖信息，不发送用户素材。
 - 参考 Mac 的 uv Python 在审查工具创建临时复制环境时无法定位动态库，改为直接审查确切解析版本后通过。普通新建虚拟环境安装并运行 AgentSafe 成功；未在全新机器安装 Homebrew/Python/OCR，这一缺口仍保留。
 
-公开前仍需确切候选提交的 CI 通过；下方已有矩阵结果保留为历史证据。
+实现候选 `c7b8a9b` 的三个平台 CI 任务与依赖安全任务全部通过；每个平台运行 172 个测试、零跳过，并构建和检查安装后的分发包。使用时请核对[对应提交的 CI](https://github.com/Minjia-Hu/agentsafe/actions/workflows/ci.yml)；下方原有矩阵保留为历史证据。
 
 ## 源码 Alpha 检查 — 2026 年 10 月 18–24 日
 

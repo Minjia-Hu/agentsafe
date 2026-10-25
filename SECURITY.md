@@ -6,7 +6,7 @@ AgentSafe is experimental Alpha software. The current development line receives 
 
 ## Report a vulnerability privately
 
-When GitHub's **Report a vulnerability** button is available, use the [repository's private reporting page](https://github.com/Minjia-Hu/agentsafe/security/advisories/new). This channel must be enabled by the maintainer; its availability is not assumed during private Alpha preparation.
+Use **Report a vulnerability** on the [repository's private reporting page](https://github.com/Minjia-Hu/agentsafe/security/advisories/new). Private vulnerability reporting is enabled for this public repository.
 
 If that button is unavailable, open a minimal issue titled **Private security contact requested**. Include no vulnerability details, exploit, private screenshot, logs, tokens or sensitive filenames. Wait for the maintainer to establish a private channel before sending details. Do not post a public proof of concept while awaiting that channel.
 
