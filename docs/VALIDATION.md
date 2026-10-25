@@ -4,6 +4,18 @@
 
 Measured evidence on named environments does not establish general accuracy or universal platform support. All test/demo artifacts are fictional.
 
+## Pre-publication fixes — October 25, 2026
+
+- Added bounded recognition of quoted scalar and equals-separated authentication/cookie fields. Synthetic regressions verify standalone detection, multiple fields, escaped quotes, empty/placeholders, original offsets, masking in both review renderers and withholding ambiguous line context. Uncertain structures retain noninteractive finding locations; this is not JSON/HAR document parsing.
+- Static asset requests and rejected API requests no longer renew GUI idle retention. Removed design comparison routes and unused candidate artwork from the installed package.
+- Raised Pillow to `>=13,<14`; the reference installation uses 13.0.0. The [upstream PNG EXIF advisory](https://github.com/python-pillow/Pillow/security/advisories/GHSA-g4qv-2jxx-769h) affects the earlier `getexif()` path. Reviewed on October 25; not all upstream format-specific advisories apply to AgentSafe's PNG/JPEG-only path.
+- 172 behavior tests passed locally with no skips. A new macOS Python 3.12.12 environment installed the source; source/wheel builds and the installed-wheel doctor, fictional demo and GUI/PNG-copy smoke passed outside the checkout. Tesseract 5.5.2 / English and Typer 0.27.3 were used in the independent environment.
+- Browser checks in English and Chinese passed quoted-log masking, ambiguous-line fallback, the fictional customer/project example, two-region image covering, recheck, download and session end. No browser script errors were observed. This was Chromium on the reference Mac, not a broader browser certification.
+- Audited all eight resolved runtime dependencies with pip-audit: no known vulnerabilities reported. CI now audits exact installed dependency versions; Dependabot proposes weekly Python/Actions updates. Queries concern public dependency metadata, not user artifacts.
+- The audit tool's temporary copied-Python environment could not locate a dynamic library on the reference uv-managed Mac. Auditing the exact resolved versions directly passed. A normal fresh virtual environment installed and ran AgentSafe successfully. Homebrew/Python/OCR were not installed from scratch on a clean machine; that gap remains.
+
+The new candidate still requires CI on its exact commit before publication. Earlier matrix results below remain historical evidence.
+
 ## Source Alpha checks — October 18–24, 2026
 
 - A fresh virtual environment installed source with build isolation and normal dependency resolution on macOS, Python 3.12.12, Tesseract 5.5.2 / English, Pillow 12.3.0, Rich 14.3.4 and Typer 0.27.3. Python/OCR were already present; this was not a clean-machine setup test.

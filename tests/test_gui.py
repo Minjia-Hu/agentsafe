@@ -157,6 +157,19 @@ def test_auth_host_origin_and_request_bounds(local_gui):
     assert server.session.status()["state"] == "idle"
 
 
+def test_only_authenticated_api_requests_extend_idle_lifetime(local_gui):
+    server = local_gui
+    server.session.last_activity = 1.0
+    for route in ("/", "/gui.js", "/favicon.ico"):
+        assert request(server, route, auth=False)[0] == 200
+        assert server.session.last_activity == 1.0
+    assert request(server, "/api/status", auth=False)[0] == 401
+    assert request(server, "/api/status", origin="https://outside.test")[0] == 403
+    assert server.session.last_activity == 1.0
+    assert request(server, "/api/status")[0] == 200
+    assert server.session.last_activity > 1.0
+
+
 def test_scan_clear_rescan_and_stop(local_gui):
     server = local_gui
     raw = b"Authorization: Bearer SYNTHETIC_NOT_A_VALID_TOKEN\nCookie: preference=dark"
@@ -342,8 +355,8 @@ def test_closed_session_never_retains_new_inputs(local_gui):
 
 def test_browser_logo_assets_are_packaged_and_local(local_gui):
     server = local_gui
-    assert request(server, "/brand", auth=False)[0] == 200
-    for variant in ("monogram", "frame", "document"):
+    assert request(server, "/brand")[0] == 404
+    for variant in ("monogram",):
         code, headers, svg = request(server, f"/icons/{variant}.svg", auth=False)
         assert code == 200 and headers["Content-Type"] == "image/svg+xml"
         assert b"<svg" in svg and b"href=" not in svg

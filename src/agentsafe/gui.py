@@ -36,12 +36,9 @@ ASSETS = {
     "/preview.css": ("preview.css", "text/css; charset=utf-8"),
     "/redaction.js": ("redaction.js", "text/javascript; charset=utf-8"),
     "/redaction.css": ("redaction.css", "text/css; charset=utf-8"),
-    "/brand": ("brand.html", "text/html; charset=utf-8"),
-    "/brand.js": ("brand.js", "text/javascript; charset=utf-8"),
-    "/brand.css": ("brand.css", "text/css; charset=utf-8"),
     "/favicon.ico": ("icons/monogram.ico", "image/x-icon"),
 }
-for _variant in ("monogram", "frame", "document"):
+for _variant in ("monogram",):
     for _suffix, _type in ((".svg", "image/svg+xml"), ("-32.png", "image/png"), ("-180.png", "image/png"), (".ico", "image/x-icon")):
         ASSETS[f"/icons/{_variant}{_suffix}"] = (f"icons/{_variant}{_suffix}", _type)
 
@@ -265,7 +262,8 @@ class Handler(BaseHTTPRequestHandler):
         if auth and (not expected or not hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8"))):
             self.respond(401, {"message": "Session expired. Open AgentSafe again to reconnect."})
             return False
-        self.server.session.last_activity = time.monotonic()
+        if auth:
+            self.server.session.last_activity = time.monotonic()
         return True
 
     def do_GET(self):

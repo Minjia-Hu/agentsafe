@@ -13,7 +13,7 @@ One Python package handles explicit local snapshots. The GUI is a short-lived au
 | Runtime | Python 3.11+ | Small package and local file-processing ecosystem; verify supported versions before release |
 | CLI | Typer and Rich | Clear commands and terminal output; treat filenames/content as plain untrusted text |
 | Human GUI | Packaged HTML/CSS/JavaScript + standard-library loopback HTTP server | Reuse the existing review renderer/core; no new framework or cloud dependency |
-| Image input | Pillow | Bounded PNG/JPEG decoding; validate bytes, dimensions and corrupt input |
+| Image input | Pillow 13.x | Bounded PNG/JPEG decoding; validate bytes, dimensions and corrupt input |
 | OCR | Tesseract via subprocess stdin/stdout TSV | Local OCR with coordinates; avoids temporary input/output files and an unnecessary wrapper dependency |
 | Configuration | Standard-library TOML reader | Optional sensitive domains, literal terms and session-cookie names; no policy framework |
 | Verification | pytest | Labeled synthetic behavior cases; no real private data |
@@ -95,7 +95,7 @@ Store sessions outside Git repositories under the OS temporary directory, with P
 
 ### Masked finding-line context
 
-`text_preview.py` builds excerpts only after the full supported text inspection succeeds and only when preview capture is explicit (`scan_buffers`, `scan --preview`, `demo`). Normal CLI scans retain no excerpt. Findings carry source character masking spans, never matched values; the rules share their Authorization/Cookie parser with preview masking. Preserve header/cookie names, hide auth values and all cookie values on retained lines, including placeholders, unparsed cookie parts and unnecessary Set-Cookie attribute tails. Merge overlapping detector spans to hide terms, domains and emails before constructing snippets.
+`text_preview.py` builds excerpts only after the full supported text inspection succeeds and only when preview capture is explicit (`scan_buffers`, `scan --preview`, `demo`). Normal CLI scans retain no excerpt. Findings carry source character masking spans, never matched values; the rules and preview share the line-local parser in `auth_fields.py`. It accepts colon/equal separators, quoted scalar fields and escaped quotes while preserving original offsets; it does not parse JSON/HAR documents or decode nested/encoded keys. Preview masking runs independently of whether an auth/cookie finding exists. An unbounded recognizable auth/cookie label causes the entire line excerpt to be withheld, preserving findings and noninteractive line locations. Quoted cookie values are hidden in full. Preserve header/cookie names, hide auth values and all cookie values on retained lines, including placeholders, unparsed cookie parts and unnecessary Set-Cookie attribute tails. Merge overlapping detector spans to hide terms, domains and emails before constructing snippets.
 
 Only finding lines are retained. Merge windows with up to 48 source characters on each side of masking spans, use ellipses for omitted context, and cap each file's UTF-8 excerpt text at 64 KiB. An exceeded preview limit is explicit failed coverage/exit 2, with no partial findings or excerpts retained. Existing input/line/finding limits still apply. Masked excerpt records are excluded from repr; terminal rendering ignores them. HTML escapes text/control characters and never turns a URL into a link. Line buttons use scoped IDs, keyboard activation and visible focus/highlight; no excerpt means no clickable target. Never retain an OCR transcript or reread an original for review.
 
@@ -109,7 +109,7 @@ File selection submits a bounded binary frame: four-byte metadata length, at mos
 
 `scan_buffers` and `scan_files` share one orchestrator. A worker scans without blocking the UI; polling reports the current file/count, not a claimed precise overall percentage. `preview.render_cards` supplies escaped masked results and normalized visible-image regions. Only masked finding-line excerpts may enter result HTML, never raw logs/OCR transcripts. Failed inspection takes precedence in summaries. No-readable-text remains manual review, not a finding or privacy pass.
 
-Raw snapshots remain in worker memory and are released after processing. The session keeps the latest masked card HTML (including masked log excerpts and explicitly selected visible image pixels), normalized image sources and the original policy for manual copies, plus exact exported PNG bytes when a copy was created, cleared on replacement, Clear results, End session, process exit or 30 minutes without requests. There is no artifact spool, database or report file. Browser/OS persistence is outside the promise; a same-user malicious process or browser extension is not prevented. A browser File is a selected snapshot: edits require re-selection. Settings/selection changes mark prior results stale. The existing static-preview disk lifecycle is separate.
+Raw snapshots remain in worker memory and are released after processing. The session keeps the latest masked card HTML (including masked log excerpts and explicitly selected visible image pixels), normalized image sources and the original policy for manual copies, plus exact exported PNG bytes when a copy was created, cleared on replacement, Clear results, End session, process exit or 30 minutes without authenticated API requests. There is no artifact spool, database or report file. Browser/OS persistence is outside the promise; a same-user malicious process or browser extension is not prevented. A browser File is a selected snapshot: edits require re-selection. Settings/selection changes mark prior results stale. The existing static-preview disk lifecycle is separate.
 
 `AgentSafe.app` is a small native Mac development launcher, built by `scripts/build_macos_launcher.py` from `macos_launcher.m` using existing Apple clang/AppKit. The ignored native binary contains paths to an owned private OS-temp runtime snapshot and the existing base Python. The build copies current package code and installed environment dependencies, never scan inputs. It starts Python with `-S` and that snapshot on PYTHONPATH, without shell evaluation, Desktop checkout access or automatic installation/downloads. Rebuild after source/dependency changes or temp-runtime removal. It opens the default browser in Chinese. This unsigned development setup still depends on the existing base Python/Tesseract; it is not a distributable standalone app. Signed/notarized runtime/OCR bundles and Windows/Linux launchers require separate launch validation.
 
@@ -123,7 +123,7 @@ Latest image/policy/export state is released on new scans, clear, end, idle expi
 
 ### Browser identity assets
 
-The local asset allowlist includes `/brand`, three original SVG icons, 32/180 px PNGs and multi-size ICOs, including `/favicon.ico` fallback. `scripts/build_icons.py` creates the geometric designs without remote assets/fonts; package data includes the icon subdirectory. The comparison page switches only its own favicon and uses no stored preference or artifact input. The app uses the A monogram (01) in its header and favicon links; `/favicon.ico` serves that same design. CSP allows same-origin icon images plus existing PNG data URLs, not external image resources.
+The local asset allowlist includes only the selected original A monogram SVG, 32/180 px PNGs and multi-size ICO, including `/favicon.ico`. `scripts/build_icons.py` generates it without remote assets/fonts. Design comparison pages and unused candidate assets are not packaged. CSP allows same-origin icon images plus existing PNG data URLs, not external resources.
 
 ## 6. Repository structure
 
@@ -147,6 +147,7 @@ agentsafe/
 │   ├── demo_assets/               # Packaged fictional inputs and policy
 │   ├── inputs.py                  # Bounded snapshots and classification
 │   ├── extract.py                 # Text and local OCR
+│   ├── auth_fields.py             # Bounded line-local auth field offsets
 │   ├── rules.py                   # Small evidence rules
 │   ├── text_preview.py            # Masked finding-line excerpts
 │   ├── redaction.py               # Bounded opaque PNG copies, no paths

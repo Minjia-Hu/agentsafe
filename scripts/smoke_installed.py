@@ -52,7 +52,7 @@ def main():
         raise AssertionError("Synthetic installed-wheel scan timed out.")
 
     try:
-        for route in ("/", "/gui.js", "/redaction.js", "/redaction.css", "/brand", "/brand.js", "/icons/monogram.svg", "/favicon.ico"):
+        for route in ("/", "/gui.js", "/redaction.js", "/redaction.css", "/icons/monogram.svg", "/favicon.ico"):
             code, data = request(route, authenticated=False)
             assert code == 200 and data, route
         assert request("/api/status", authenticated=False)[0] == 401

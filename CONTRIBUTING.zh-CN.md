@@ -38,3 +38,7 @@ python3.12 -m venv .venv
 - 阅读 [AGENTS.md](AGENTS.md)、[PRODUCT.md](PRODUCT.md) 和 [ARCHITECTURE.md](ARCHITECTURE.md)。历史实验记录不授权扩大功能范围。
 
 漏洞请按 [SECURITY.zh-CN.md](SECURITY.zh-CN.md) 反馈，不要公开详细漏洞。贡献采用项目 [MIT 许可证](LICENSE)，保留适用的第三方声明。
+
+Dependabot 每周提出依赖更新。CI 对解析后的项目依赖查询公开漏洞记录，只涉及包名/版本，不发送素材或扫描结果。这是开发检查，不增加运行期联网。
+
+请遵守[社区行为准则](CODE_OF_CONDUCT.zh-CN.md)。

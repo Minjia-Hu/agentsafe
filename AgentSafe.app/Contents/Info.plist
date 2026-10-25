@@ -6,7 +6,7 @@
 <key>CFBundleExecutable</key><string>AgentSafe</string>
 <key>CFBundleIdentifier</key><string>local.agentsafe.development</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleVersion</key><string>0.0.1</string>
+<key>CFBundleVersion</key><string>0.1.0a1</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>

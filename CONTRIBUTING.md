@@ -38,3 +38,7 @@ Install the generated wheel into a fresh virtual environment, change to a direct
 - Read [AGENTS.md](AGENTS.md), [PRODUCT.md](PRODUCT.md) and [ARCHITECTURE.md](ARCHITECTURE.md) for current boundaries. Historical experiment notes do not authorize a feature expansion.
 
 Report suspected vulnerabilities through [SECURITY.md](SECURITY.md), not a detailed public issue. Contributions are licensed under the project's [MIT license](LICENSE); retain any applicable third-party notices.
+
+Dependency updates are proposed weekly by Dependabot. CI audits the resolved project dependencies against public vulnerability records; package names/versions are queried, never artifacts or scan results. This is a development check, not runtime network access.
+
+Follow the [community conduct rules](CODE_OF_CONDUCT.md).

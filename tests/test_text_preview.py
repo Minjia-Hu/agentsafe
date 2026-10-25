@@ -135,3 +135,61 @@ def test_text_preview_budget_is_explicit_failure_not_partial_success(monkeypatch
 def test_text_input_byte_limit_still_applies_before_preview():
     report = scan_buffers([("small.txt", b"Authorization: FICT_SECRET")], Policy(), limits=replace(Limits(), text_bytes=2))
     assert report.exit_code == 2 and not report.files[0].preview_lines
+
+
+@pytest.mark.parametrize("text", [
+    '{"client":"Cedar","Authorization":"FICT_AUTH","Cookie":"sid=FICT_COOKIE"}',
+    "{'client':'Cedar','Proxy-Authorization':'FICT_AUTH','Set-Cookie':'sid=FICT_COOKIE; Path=/'}",
+    'Cedar Authorization="FICT_AUTH" Cookie="sid=FICT_COOKIE"',
+    'Cedar Authorization=FICT_AUTH',
+])
+def test_quoted_and_equals_auth_fields_are_detected_and_hidden(text):
+    report = check(text, Policy(sensitive_terms=("Cedar",), session_cookie_names=("sid",)))
+    assert report.exit_code == 1
+    assert any(f.rule == "authorization" for f in report.files[0].findings)
+    assert report.files[0].preview_lines
+    for html in (render_cards(report), render_page([ReviewGroup("Synthetic", "", report)])):
+        assert "FICT_AUTH" not in html and "FICT_COOKIE" not in html and "Cedar" not in html
+
+
+def test_quoted_fields_work_without_another_finding_and_keep_offsets():
+    text = 'prefix {"Authorization":"FICT_AUTH","Cookie":"sid=FICT_COOKIE; theme=dark"}'
+    report = check(text, Policy(session_cookie_names=("sid",)))
+    file = report.files[0]
+    assert report.exit_code == 1 and len(file.findings) == 3
+    assert [text[slice(*f.mask_span)] for f in file.findings] == ["FICT_AUTH", "FICT_COOKIE", "dark"]
+    assert file.preview_lines[0].text == 'prefix {"Authorization":"[HIDDEN]","Cookie":"[HIDDEN]"}'
+
+
+@pytest.mark.parametrize("value", ['', 'Bearer', '[REDACTED]', 'null'])
+def test_quoted_empty_and_placeholder_auth_does_not_create_high(value):
+    assert check(f'{{"Authorization":"{value}"}}').exit_code == 0
+    report = check(f'{{"client":"Cedar","Authorization":"{value}"}}', Policy(sensitive_terms=("Cedar",)))
+    assert len(report.files[0].findings) == 1
+    expected = '[HIDDEN]' if value else ''
+    assert f'"Authorization":"{expected}"' in report.files[0].preview_lines[0].text
+
+
+def test_escaped_quote_does_not_end_auth_mask_early():
+    text = r'{"client":"Cedar","Authorization":"FICT_\"TAIL","Cookie":"sid=FICT_COOKIE"}'
+    report = check(text, Policy(sensitive_terms=("Cedar",)))
+    assert len(report.files[0].findings) == 3
+    assert 'FICT_' not in render_cards(report)
+    assert 'TAIL' not in render_cards(report)
+
+
+@pytest.mark.parametrize("text", [
+    'Cedar "Authorization": "FICT_UNCLOSED',
+    'Cedar "Cookie": {"sid":"FICT_NESTED"}',
+    'Cedar "Authorization": ["FICT_ARRAY"]',
+    'Cedar "Authorization": "FICT_VALUE"FICT_TAIL',
+    r'Cedar \"Authorization\":\"FICT_ESCAPED\"',
+])
+def test_ambiguous_auth_context_falls_back_to_noninteractive_location(text):
+    report = check(text, Policy(sensitive_terms=("Cedar",)))
+    assert report.exit_code == 1 and report.files[0].coverage == "inspected"
+    assert report.files[0].findings and not report.files[0].preview_lines
+    for lang in ("en", "zh"):
+        html = render_cards(report, lang=lang)
+        assert 'FICT_' not in html and 'Cedar' not in html and 'data-target=' not in html
+        assert 'line 1' in html.lower() if lang == "en" else '第 1 行' in html

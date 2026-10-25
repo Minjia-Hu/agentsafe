@@ -1,8 +1,9 @@
 include LICENSE
+include CODE_OF_CONDUCT*.md
 include README*.md CONTRIBUTING*.md SECURITY*.md THIRD_PARTY_NOTICES*.md
 include PRODUCT*.md ROADMAP*.md ARCHITECTURE*.md AGENTS*.md
 include AgentSafe.app/Contents/Info.plist
 recursive-include scripts *.py *.m
 recursive-include examples/synthetic *.py *.md *.png *.jpg *.log *.toml
-recursive-include docs *.md *.png *.jpg
+recursive-include docs *.md *.png
 recursive-include tests *.py

@@ -32,7 +32,7 @@ python3.12 -m venv .venv
 .venv/bin/agentsafe gui
 ```
 
-While this repository is private, cloning requires access; these are the intended public-repository instructions. Installation downloads dependencies. Subsequent artifact checks run locally. Do not substitute `pip install agentsafe`: that package name is not this project's distribution channel.
+Installation downloads dependencies. Subsequent artifact checks run locally. Do not substitute `pip install agentsafe`: that package name is not this project's distribution channel.
 
 `doctor` should report `READY` for English OCR. If it reports an error, fix it before trying screenshots. UTF-8 log/text scanning can work without OCR. `gui` opens your default browser; keep the terminal process running. Later, from the `agentsafe` directory, run just `.venv/bin/agentsafe gui`. Add `--lang zh` for a Chinese interface.
 
@@ -51,7 +51,7 @@ The saved `*-redacted.png` contains opaque replacement pixels; the original is u
 
 For your files, select PNG/JPEG screenshots or UTF-8 `.log`/`.txt` files. Optional **Sensitive words / phrases** can contain customer/project names, one per line; **Internal domains** accepts domains such as `northstar.test`, not full URLs. Configured session-cookie names are also supported. Empty context fields still allow general email/authentication/cookie checks; organization-specific sensitivity is not inferred. Settings last only for this session.
 
-Modify logs with your usual editor, select the updated files again, and recheck. Log excerpts hide authentication/cookie values and detected terms/domains/emails, but can retain other private context; they are a review aid, not a sanitized export. End the session with **End session** or Ctrl+C in the terminal.
+Modify logs with your usual editor, select the updated files again, and recheck. Log excerpts hide recognized authentication/cookie values and detected terms/domains/emails. Ambiguous authentication context is withheld. Other private context can remain; excerpts are a review aid, not a sanitized export. End the session with **End session** or Ctrl+C in the terminal.
 
 ![Clicking a log finding highlights its masked source line](docs/images/gui-log-preview.png)
 
@@ -68,6 +68,8 @@ Log review preserves line numbers and hides detected values. These excerpts are 
 | Other emails or populated cookies | WARN; examples/placeholders are handled separately |
 | No readable image text | Explicit manual-review limitation; never a safe-image verdict |
 | Unsupported, corrupt, oversized or failed input | Visible incomplete coverage/error |
+
+Authentication/cookie rules recognize line-local `Name: value`, `Name=value`, and single/double-quoted scalar fields such as `"Authorization":"value"`. Escaped closing quotes are handled without changing source offsets. This is not full JSON/HAR parsing: nested values, encoded keys and multiline values are outside detection coverage. When a retained line contains a recognizable auth/cookie label with an ambiguous value boundary, its excerpt is withheld and only the finding location is shown.
 
 Detection does not cover arbitrary API keys/passwords, automatic confidential-name/dashboard recognition, faces, QR codes, PDF, video, HAR parsing or hidden metadata. There is no automatic redaction, directory crawling, agent interception or Git integration. Supported inputs are checked regardless of whether a person or an AI created them.
 
@@ -110,7 +112,7 @@ Use `--config path/to/policy.toml` explicitly; no implicit repository policy is 
 ## Local processing and retained data
 
 - Ordinary CLI scans make no network requests. The GUI communicates only with an authenticated process on `127.0.0.1`; it has no remote upload, telemetry, CDN or cloud model. Installation downloads are separate.
-- GUI inputs, policy, masked excerpts, visible image snapshots and generated copies are held in memory. They are released on replacement, clear/end, process exit or 30 minutes without requests. Closing the tab alone does not immediately stop the process. Only the connection token uses tab session storage.
+- GUI inputs, policy, masked excerpts, visible image snapshots and generated copies are held in memory. They are released on replacement, clear/end, process exit or 30 minutes without authenticated API requests. Closing the tab alone does not immediately stop the process. Only the connection token uses tab session storage.
 - An explicit **Save PNG copy** downloads a file you manage yourself. Browser/OS caching is outside the memory-only process promise. Modified originals must be selected again.
 - Static `demo` / `--preview` pages are written to private OS-temp directories outside the repository. Eligible unchanged sessions older than 24 hours are cleaned on a later preview creation; there is no background deletion. Delete these pages manually when finished. They contain visible image pixels and potentially private context.
 

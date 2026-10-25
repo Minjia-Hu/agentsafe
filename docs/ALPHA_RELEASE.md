@@ -13,7 +13,7 @@ No standalone installer, cloud inference, automatic redaction, automatic confide
 ## Before publication
 
 1. Review the exact candidate tree, reachable history, license and both documentation languages. Review every newly added artifact as well as source changes.
-2. Require CI on that exact revision: all three matrix jobs, zero skipped behavior tests, distribution builds and installed-wheel smoke. Use [validation](VALIDATION.md) for evidence and gaps, not as a substitute for the current run.
+2. Require CI on that exact revision: all three matrix jobs plus dependency security, zero skipped behavior tests, distribution builds and installed-wheel smoke. Use [validation](VALIDATION.md) for evidence and gaps, not as a substitute for the current run.
 3. Confirm the maintainer's publication decision. Verify naming/distribution clarity; do not direct installation to an unowned package name.
 4. If changing visibility, enable GitHub private vulnerability reporting and verify the entry before announcing that channel. Follow SECURITY.md; do not invite real sensitive attachments in public issues.
 5. Create prerelease tag `v0.1.0a1` only for the reviewed revision after release approval. GitHub source archives suffice for this source Alpha. Registry publication and uploaded packages require separate verification and approval.

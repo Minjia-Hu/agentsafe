@@ -4,13 +4,13 @@ import re
 import time
 from urllib.parse import urlsplit
 
+from .auth_fields import context_is_bounded, fields
 from .config import Policy
 from .models import Box, Finding, ScanError, Segment
 
 EMAIL = re.compile(r"(?<![\w.+-])[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@(?P<host>(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,63})(?![\w.-])")
 URL = re.compile(r"https?://[^\s<>\"']+", re.I)
 DOMAIN = re.compile(r"(?<![\w.@/-])(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}(?![\w.-])")
-HEADER = re.compile(r"(?:^|\s)(?P<name>Proxy-Authorization|Authorization|Set-Cookie|Cookie)\s*:\s*(?P<value>.*)$", re.I)
 PAIR = re.compile(r"\s*([^=;\s]+)\s*=\s*([^;]*)")
 RESERVED = ("example.com", "example.net", "example.org", "test", "invalid", "localhost", "example")
 PLACEHOLDERS = {"", "redacted", "hidden", "masked", "removed", "none", "null", "undefined", "placeholder", "token", "your_token", "your-token", "your_api_key", "your-api-key", "..."}
@@ -74,15 +74,15 @@ def inspect_segment(segment: Segment, policy: Policy, *, max_findings: int = 200
             continue
         if policy.sensitive(match.group()):
             add(evidence(segment, *match.span(), "sensitive-domain", "Configured sensitive hostname; value hidden", True))
-    for match in HEADER.finditer(text):
-        name, value = match.group("name").lower(), match.group("value")
+    for header in fields(text):
+        name, value = header.name, text[header.value_start:header.value_end]
         if name.endswith("authorization"):
             if not placeholder(value) and value.strip().lower() not in {"bearer", "basic", "token"}:
-                add(evidence(segment, *match.span(), "authorization", "Populated Authorization field; value hidden (validity not checked)", True, mask_span=match.span("value")))
+                add(evidence(segment, header.start, header.end, "authorization", "Populated Authorization field; value hidden (validity not checked)", True, mask_span=(header.value_start, header.value_end)))
             continue
         # Set-Cookie attributes such as Path/SameSite are not independent cookies.
         pairs = value.split(";") if name == "cookie" else value.split(";", 1)[:1]
-        offset = match.start("value")
+        offset = header.value_start
         for part in pairs:
             pair = PAIR.fullmatch(part)
             if pair and not placeholder(pair.group(2)):
@@ -94,19 +94,22 @@ def inspect_segment(segment: Segment, policy: Policy, *, max_findings: int = 200
     return findings
 
 
-def preview_mask_spans(segment: Segment, findings: list[Finding]) -> list[tuple[int, int]]:
+def preview_mask_spans(segment: Segment, findings: list[Finding]) -> list[tuple[int, int]] | None:
     """Reuse detector offsets, hiding header values even when parsing is partial.
 
     This only prepares private finding-line context, not a sanitized export or
     a new detection rule. Names remain visible unless another rule masks them.
     """
     spans = [f.mask_span for f in findings if f.mask_span is not None]
-    for match in HEADER.finditer(segment.text):
-        name, value = match.group("name").lower(), match.group("value")
-        if name.endswith("authorization"):
-            spans.append(match.span("value"))
+    parsed = fields(segment.text)
+    if not context_is_bounded(segment.text, parsed):
+        return None
+    for header in parsed:
+        name, value = header.name, segment.text[header.value_start:header.value_end]
+        if name.endswith("authorization") or header.quoted:
+            spans.append((header.value_start, header.value_end))
             continue
-        offset = match.start("value")
+        offset = header.value_start
         parts = value.split(";") if name == "cookie" else value.split(";", 1)
         for index, part in enumerate(parts):
             # Set-Cookie attributes are unnecessary context; hide the tail.

@@ -119,6 +119,8 @@ The Alpha excludes Git/index/history inspection, destination visibility, hooks, 
 
 If a Git gate is later selected, it must inspect all relevant outgoing versions, including files deleted or redacted in later commits, and the actual destination. A worktree scan cannot make that promise. Detailed conditional requirements are in ARCHITECTURE.md.
 
+Auth/cookie detection accepts line-local colon/equal fields and quoted scalar keys/values. It does not interpret JSON/HAR documents, nested values, encoded keys or multiline values. Preview masking covers recognized auth/cookie fields even when their values produce no finding; ambiguous auth context falls back to a noninteractive line location.
+
 ## 7. Current Alpha scope
 
 ### Included
