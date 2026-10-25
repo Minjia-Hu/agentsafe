@@ -12,9 +12,9 @@ AgentSafe finds supported privacy signals in screenshots and logs, shows where t
 
 **Experimental Alpha — source installation.** Expect limited detection coverage and changes to the interface. This is a manual review tool: it does not intercept Git pushes or uploads, and zero findings do not certify privacy. No standalone installer or PyPI installation is offered in this Alpha.
 
-![Local GUI checking fictional customer and project names](docs/images/gui-preview.jpg)
+![Local GUI checking fictional customer and project names](docs/images/gui-preview.png)
 
-Screenshots show fictional data from the development workflow; wording and icons may differ from the current Alpha.
+Actual Alpha interface with the bundled fictional Customer / project names sample. The view above shows the screenshot findings; the two-file sample also includes a log.
 
 ## Try it from source
 
@@ -42,16 +42,20 @@ Ubuntu/Debian starting point (Linux validation status is in the record above): i
 
 1. Click **Customer / project names**. This bundled fictional example supplies its own sensitivity settings.
 2. Click an image finding to locate it. Click a log finding to highlight its masked line.
-3. Choose **Manual redaction** below the image. Select detected regions, draw rectangles, or enter pixel coordinates; undo/reset if needed.
+3. Choose **Cover image manually** below the image. Select detected regions, draw rectangles, or enter pixel coordinates; undo/reset if needed.
 4. Choose **Create & check PNG copy**. Review the new image's results, then **Save PNG copy**.
 
 The saved `*-redacted.png` contains opaque replacement pixels; the original is unchanged. Rechecking uses the original scan's sensitivity settings and covers only the new image. Other previously selected files are not rechecked in that result. Review the whole copy before sharing: unselected content may still be sensitive.
 
-![Manual covering of fictional names before creating a PNG copy](docs/images/gui-redaction.jpg)
+![Manual covering of fictional names before creating a PNG copy](docs/images/gui-redaction.png)
 
 For your files, select PNG/JPEG screenshots or UTF-8 `.log`/`.txt` files. Optional **Sensitive words / phrases** can contain customer/project names, one per line; **Internal domains** accepts domains such as `northstar.test`, not full URLs. Configured session-cookie names are also supported. Empty context fields still allow general email/authentication/cookie checks; organization-specific sensitivity is not inferred. Settings last only for this session.
 
 Modify logs with your usual editor, select the updated files again, and recheck. Log excerpts hide authentication/cookie values and detected terms/domains/emails, but can retain other private context; they are a review aid, not a sanitized export. End the session with **End session** or Ctrl+C in the terminal.
+
+![Clicking a log finding highlights its masked source line](docs/images/gui-log-preview.png)
+
+Log review preserves line numbers and hides detected values. These excerpts are a review aid, not a sanitized file for sharing.
 
 ## What it checks
 
