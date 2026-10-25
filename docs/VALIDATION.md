@@ -14,7 +14,7 @@ Measured evidence on named environments does not establish general accuracy or u
 - Audited all eight resolved runtime dependencies with pip-audit: no known vulnerabilities reported. CI now audits exact installed dependency versions; Dependabot proposes weekly Python/Actions updates. Queries concern public dependency metadata, not user artifacts.
 - The audit tool's temporary copied-Python environment could not locate a dynamic library on the reference uv-managed Mac. Auditing the exact resolved versions directly passed. A normal fresh virtual environment installed and ran AgentSafe successfully. Homebrew/Python/OCR were not installed from scratch on a clean machine; that gap remains.
 
-The new candidate still requires CI on its exact commit before publication. Earlier matrix results below remain historical evidence.
+The implementation candidate `c7b8a9b` passed all three CI platform jobs and the dependency-security job. Each platform job ran 172 tests with no skips and built/tested the installed distribution. Consult [CI](https://github.com/Minjia-Hu/agentsafe/actions/workflows/ci.yml) for the exact revision being used; earlier matrix results below remain historical evidence.
 
 ## Source Alpha checks — October 18–24, 2026
 

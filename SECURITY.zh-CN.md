@@ -6,7 +6,7 @@ AgentSafe 是实验性 Alpha，当前开发分支接受修复，暂无长期支�
 
 ## 私密报告漏洞
 
-若 GitHub 显示「Report a vulnerability」，请使用[仓库私密报告入口](https://github.com/Minjia-Hu/agentsafe/security/advisories/new)。维护者需要启用该功能；私有 Alpha 准备期间不假定入口已可用。
+请使用[仓库私密报告入口](https://github.com/Minjia-Hu/agentsafe/security/advisories/new)中的「Report a vulnerability」。本公开仓库已启用私密漏洞报告。
 
 若没有此按钮，创建标题为 **Private security contact requested** 的最小 issue。不要附漏洞细节、利用方式、私密截图、日志、token 或敏感文件名。等待维护者建立私密渠道后再提供细节，在此之前不要公开漏洞复现。
 
